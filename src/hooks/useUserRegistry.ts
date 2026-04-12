@@ -65,15 +65,25 @@ export function useRegisterUser() {
   return { register, isPending, isConfirming, isConfirmed, isSuccess, error };
 }
 
-export function useUserRole(_address?: string | null) {
-  const [role, setRole] = useState<UserRole | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+const ROLE_MAP: Record<number, UserRole> = {
+  0: "Client",
+  1: "FreelancerOwner",
+  2: "Agent",
+  3: "Both",
+};
 
-  const refetch = () => {
-    setIsLoading(true);
-    // TODO: Implement actual contract query with useReadContract
-    setIsLoading(false);
-  };
+export function useUserRole(address?: string | null) {
+  const { data, isLoading, isError, refetch } = useReadContract({
+    address: CONTRACT_CONFIG.UserRegistry.address,
+    abi: CONTRACT_CONFIG.UserRegistry.abi,
+    functionName: "getUserRole",
+    args: address ? [address as Address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
 
-  return { role, isLoading, refetch };
+  const role = data !== undefined ? (ROLE_MAP[data as number] ?? "Unregistered") : null;
+
+  return { role, isLoading, isError, refetch };
 }
