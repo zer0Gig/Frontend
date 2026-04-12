@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.local.example
+
+# Hardhat
+contracts/cache/
+contracts/artifacts/
+
+# Frontend
+.next/
+out/
+dist/
+tsconfig.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+.vercel

@@ -1,0 +1,38 @@
+{
+  "name": "zer0gig-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@0gfoundation/0g-ts-sdk": "^1.2.1",
+    "@coinbase/wallet-sdk": "^4.3.7",
+    "@privy-io/react-auth": "^3.18.0",
+    "@privy-io/wagmi": "^4.0.3",
+    "@supabase/supabase-js": "^2.102.1",
+    "@tanstack/react-query": "^5.95.2",
+    "animejs": "^4.3.6",
+    "better-sqlite3": "^12.8.0",
+    "ethers": "^6.13.1",
+    "framer-motion": "^11.0.0",
+    "gsap": "^3.14.2",
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "viem": "2.47.4",
+    "wagmi": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0"
+  }
+}
