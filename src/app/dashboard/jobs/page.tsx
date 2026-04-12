@@ -51,8 +51,8 @@ function OpenJobCard({
   skillFilter: string;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const { data: jobRaw } = useJobDetails(jobId);
-  const { proposals } = useJobProposals(jobId);
+  const { data: jobRaw } = useJobDetails(Number(jobId));
+  const { proposals } = useJobProposals(Number(jobId));
 
   // Anime entrance — must be before any early returns
   useEffect(() => {
@@ -147,7 +147,7 @@ function OpenJobsInner() {
   const { address } = useAccount();
   const { role } = useUserRole(address as Address | undefined);
 
-  const { openJobIds, isLoading, refetch } = useOpenJobs();
+  const { openJobIds, jobs, isLoading, refetch } = useOpenJobs();
 
   const [skillFilter, setSkillFilter] = useState("");
 
@@ -164,11 +164,7 @@ function OpenJobsInner() {
   }, []);
 
   // Count visible jobs after filter
-  const visibleCount = openJobIds?.filter((id) => {
-    if (!skillFilter) return true;
-    // We need to check the job details — do a best-effort count
-    return true; // filtering happens at card level
-  }).length ?? 0;
+  const visibleCount = openJobIds?.length ?? 0;
 
   return (
     <div className="min-h-screen">
@@ -228,10 +224,10 @@ function OpenJobsInner() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {openJobIds.map((id, i) => (
+          {jobs.map((job, i) => (
             <OpenJobCard
-              key={id.toString()}
-              jobId={id}
+              key={job.jobId.toString()}
+              jobId={job.jobId}
               index={i}
               skillFilter={skillFilter}
             />

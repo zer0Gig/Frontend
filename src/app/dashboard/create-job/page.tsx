@@ -51,7 +51,7 @@ function CreateJobForm() {
     // (no need to upload to 0G Storage — agent decodes the CID string itself)
     const brief = JSON.stringify({ title, description });
     const cid = `txt:${btoa(unescape(encodeURIComponent(brief)))}`;
-    const skillBytes32 = skill || "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const skillBytes32: `0x${string}` = skill as `0x${string}` || "0x0000000000000000000000000000000000000000000000000000000000000000";
     postJob(cid, skillBytes32);
   };
 

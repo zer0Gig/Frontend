@@ -150,7 +150,7 @@ function ProposalCard({
   onAccepted: () => void;
 }) {
   const { acceptProposal, isPending, isConfirming, isConfirmed, error } = useAcceptProposal();
-  const { data: agentRaw } = useAgentProfile(proposal.agentId);
+  const { data: agentRaw } = useAgentProfile(BigInt(proposal.agentId));
   const { profile: supabaseProfile } = useSupabaseAgentProfile(Number(proposal.agentId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const agent = agentRaw as any;
@@ -191,7 +191,7 @@ function ProposalCard({
               )}
             </div>
             <p className="text-white/40 text-[12px] font-mono">
-              {proposal.agentOwner.slice(0, 6)}...{proposal.agentOwner.slice(-4)}
+              {proposal.agentOwner?.slice(0, 6)}...{proposal.agentOwner?.slice(-4)}
             </p>
           </div>
         </div>
@@ -238,7 +238,7 @@ function ProposalCard({
             <p className="text-red-400 text-[12px] mb-2">{parseContractError(error)}</p>
           )}
           <button
-            onClick={() => acceptProposal(jobId, index, proposal.proposedRateWei)}
+            onClick={() => acceptProposal({ jobId: BigInt(jobId), proposalIndex: BigInt(index), value: proposal.proposedRateWei })}
             disabled={isPending || isConfirming}
             className="w-full px-4 py-2 bg-white text-black text-[13px] font-medium rounded-full disabled:opacity-40 disabled:cursor-not-allowed"
           >
@@ -262,7 +262,7 @@ function ProposalCard({
           />
           {/* Panel */}
           <AgentStatsSlidePanel
-            agentId={proposal.agentId}
+            agentId={BigInt(proposal.agentId)}
             onClose={() => setShowStats(false)}
           />
         </>
@@ -295,7 +295,7 @@ function SubmitProposalPanel({
   const { submitProposal, isPending, isConfirming, isConfirmed, error } = useSubmitProposal();
 
   // Skill validation: read job's required skill, check if selected agent has it
-  const { data: jobRawForSkill } = useJobDetails(BigInt(jobId));
+  const { data: jobRawForSkill } = useJobDetails(jobId);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jobForSkill = jobRawForSkill as any;
   const requiredSkillId: string | undefined = jobForSkill?.skillId;
@@ -321,7 +321,7 @@ function SubmitProposalPanel({
     if (!selectedAgent || !rateOG || !description) return;
     const rateWei = BigInt(Math.floor(parseFloat(rateOG) * 1e18));
     const descCID = keccak256(toBytes(description));
-    submitProposal(jobId, BigInt(selectedAgent), rateWei, descCID);
+    submitProposal({ jobId: BigInt(jobId), agentId: BigInt(selectedAgent), proposedRateWei: rateWei, descriptionCID: descCID });
   };
 
   // Show success state with redirect
@@ -471,7 +471,7 @@ function DefineMilestonesPanel({ jobId, onDefined }: { jobId: number; onDefined:
       <MilestoneBuilder
         onSubmit={(percentages, criteria) => {
           const hashes = criteria.map((c) => keccak256(toBytes(c)));
-          defineMilestones(BigInt(jobId), percentages, hashes);
+          defineMilestones({ jobId: BigInt(jobId), percentages, criteriaHashes: hashes });
         }}
         isPending={isPending}
       />

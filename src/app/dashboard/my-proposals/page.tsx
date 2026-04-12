@@ -13,10 +13,10 @@ import { formatOG, formatRelativeTime } from "@/lib/utils";
 // ── Proposals list (scans open jobs for our proposals) ────────────────────────
 
 function ProposalsList({ agentIds }: { agentIds: bigint[] }) {
-  const { openJobIds, isLoading: jobsLoading } = useOpenJobs();
+  const { jobs: rawJobs, isLoading: jobsLoading } = useOpenJobs() as { jobs: { jobId: bigint }[]; isLoading: boolean };
   const { profiles } = useAgentProfiles(agentIds.map(id => Number(id)));
 
-  if (jobsLoading || !openJobIds || openJobIds.length === 0) {
+  if (jobsLoading || !rawJobs || rawJobs.length === 0) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
@@ -28,7 +28,7 @@ function ProposalsList({ agentIds }: { agentIds: bigint[] }) {
 
   return (
     <div className="space-y-4">
-      {openJobIds.map((jobId, i) => (
+      {rawJobs.map(({ jobId }, i) => (
         <JobProposalsRow key={jobId.toString()} jobId={jobId} agentIds={agentIds} profiles={profiles} index={i} />
       ))}
     </div>
@@ -47,8 +47,8 @@ function JobProposalsRow({
   index: number;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
-  const { proposals } = useJobProposals(jobId);
-  const { data: jobRaw } = useJobDetails(jobId);
+  const { proposals } = useJobProposals(Number(jobId));
+  const { data: jobRaw } = useJobDetails(Number(jobId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const job = jobRaw as any;
 
@@ -119,7 +119,7 @@ function JobProposalsRow({
               </div>
             </div>
             <div className="text-right">
-              <p className="text-white text-[14px] font-semibold">{formatOG(p.proposedRateWei)} OG</p>
+              <p className="text-white text-[14px] font-semibold">{formatOG(p.proposedRateWei ?? 0n)} OG</p>
             </div>
           </div>
         ))}

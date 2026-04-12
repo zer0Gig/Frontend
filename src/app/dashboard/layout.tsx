@@ -11,13 +11,15 @@ import { useAccount, useDisconnect } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole, UserRole } from "@/hooks/useUserRegistry";
 
-const tabsByRole: Record<UserRole.Client | UserRole.FreelancerOwner, { label: string; href: string }[]> = {
-  [UserRole.Client]: [
+type RoleWithTabs = "Client" | "FreelancerOwner";
+
+const tabsByRole: Record<RoleWithTabs, { label: string; href: string }[]> = {
+  Client: [
     { label: "Overview",      href: "/dashboard" },
     { label: "My Jobs",       href: "/dashboard?tab=jobs" },
     { label: "Subscriptions", href: "/dashboard?tab=subscriptions" },
   ],
-  [UserRole.FreelancerOwner]: [
+  FreelancerOwner: [
     { label: "Overview",      href: "/dashboard" },
     { label: "Find Jobs",     href: "/dashboard/jobs" },
     { label: "My Proposals",  href: "/dashboard/my-proposals" },
@@ -155,8 +157,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // ── Derived display values ────────────────────────────────────────────────
 
   const tabs = resolvedRole
-    ? tabsByRole[resolvedRole as UserRole.Client | UserRole.FreelancerOwner]
-    : tabsByRole[UserRole.Client];
+    ? tabsByRole[resolvedRole as RoleWithTabs]
+    : tabsByRole.Client;
 
   const roleBadge =
     resolvedRole === UserRole.Client
