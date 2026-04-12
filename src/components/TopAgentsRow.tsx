@@ -51,6 +51,7 @@ function AgentPortfolioCard({ agent, profile, index }: { agent: AgentListing; pr
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       whileInView={{ opacity: 1, x: 0 }}
+      whileHover={{ scale: 1.02, y: -4 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.08 }}
       className="min-w-[320px] md:min-w-[340px] flex-shrink-0 group"
@@ -142,7 +143,12 @@ export default function TopAgentsRow() {
       {/* Background glows */}
       <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] rounded-full bg-cyan-500/[0.03] blur-[150px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative z-10 max-w-7xl mx-auto px-6"
         {/* Section header */}
         <div className="flex items-end justify-between mb-8">
           <div>
@@ -188,7 +194,7 @@ export default function TopAgentsRow() {
             View All Agents →
           </Link>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
