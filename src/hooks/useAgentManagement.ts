@@ -47,6 +47,17 @@ export function skillIdsToBytes32(skillIds: string[]): `0x${string}`[] {
   return skillIds.map(id => SKILL_IDS_TO_BYTES32[id] || id as `0x${string}`).filter(Boolean);
 }
 
+export const BYTES32_TO_SKILL_ID: Record<string, string> = Object.fromEntries(
+  Object.entries(SKILL_IDS_TO_BYTES32).map(([k, v]) => [v, k])
+);
+
+export function bytes32ToSkillLabels(bytes32Skills: string[]): string[] {
+  return bytes32Skills.map(b => {
+    const skillId = BYTES32_TO_SKILL_ID[b];
+    return skillId ? SKILL_LABELS[skillId] || skillId : b.slice(0, 10) + "...";
+  });
+}
+
 export function useAgentManagement() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
