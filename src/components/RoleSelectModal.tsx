@@ -95,9 +95,11 @@ export default function RoleSelectModal({ isOpen, onConfirmed }: RoleSelectModal
               {/* Role cards */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 {/* Client */}
-                <button
+                <motion.button
                   onClick={() => setSelected(USER_ROLES.Client)}
                   disabled={isLoading}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
                   className={`rounded-2xl border p-5 text-left transition-all duration-200 disabled:opacity-50 ${
                     selected === USER_ROLES.Client
                       ? "border-[#38bdf8]/50 bg-[#38bdf8]/10 shadow-[0_0_20px_rgba(56,189,248,0.1)]"
@@ -126,12 +128,14 @@ export default function RoleSelectModal({ isOpen, onConfirmed }: RoleSelectModal
                       Selected
                     </div>
                   )}
-                </button>
+                </motion.button>
 
                 {/* FreelancerOwner */}
-                <button
+                <motion.button
                   onClick={() => setSelected(USER_ROLES.FreelancerOwner)}
                   disabled={isLoading}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.2 }}
                   className={`rounded-2xl border p-5 text-left transition-all duration-200 disabled:opacity-50 ${
                     selected === USER_ROLES.FreelancerOwner
                       ? "border-[#a855f7]/50 bg-[#a855f7]/10 shadow-[0_0_20px_rgba(168,85,247,0.1)]"
@@ -159,7 +163,7 @@ export default function RoleSelectModal({ isOpen, onConfirmed }: RoleSelectModal
                       Selected
                     </div>
                   )}
-                </button>
+                </motion.button>
               </div>
 
               {/* On-chain note */}
