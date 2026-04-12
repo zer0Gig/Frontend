@@ -66,10 +66,9 @@ export function useRegisterUser() {
 }
 
 const ROLE_MAP: Record<number, UserRole> = {
-  0: "Client",
-  1: "FreelancerOwner",
-  2: "Agent",
-  3: "Both",
+  0: "Unregistered",
+  1: "Client",
+  2: "FreelancerOwner",
 };
 
 export function useUserRole(address?: string | null) {
