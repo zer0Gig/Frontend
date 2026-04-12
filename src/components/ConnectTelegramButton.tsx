@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 interface ConnectTelegramButtonProps {
   /** Optional: prefill the chatId field after linking */
@@ -120,10 +121,15 @@ export default function ConnectTelegramButton({ onLinked, compact = false, owner
           Connect your Telegram to receive milestone notifications and approve jobs directly from your phone.
         </p>
       )}
-      <a
+      <motion.a
         href={deepLink}
         target="_blank"
         rel="noopener noreferrer"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.2 }}
         className={`flex items-center gap-2 rounded-xl border transition-colors ${
           compact
             ? "px-3 py-1.5 border-[#38bdf8]/20 bg-[#38bdf8]/5 text-[#38bdf8]/70 hover:bg-[#38bdf8]/10 text-[11px]"
@@ -136,16 +142,26 @@ export default function ConnectTelegramButton({ onLinked, compact = false, owner
         </svg>
         <span className="font-medium">Connect Telegram</span>
         {!compact && <span className="text-[#38bdf8]/40 text-[11px] ml-auto">tap Start in the bot →</span>}
-      </a>
+      </motion.a>
 
       {status === "checking" && (
-        <p className="text-[10px] text-white/25 flex items-center gap-1">
-          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+        <motion.p
+          className="text-[10px] text-white/25 flex items-center gap-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <motion.svg
+            className="w-3 h-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
+          </motion.svg>
           Checking link status…
-        </p>
+        </motion.p>
       )}
     </div>
   );
