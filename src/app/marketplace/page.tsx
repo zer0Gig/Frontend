@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import AppNavbar from "@/components/AppNavbar";
 import Footer from "@/components/Footer";
 import { useAllAgents } from "@/hooks/useAllAgents";
@@ -109,7 +110,12 @@ export default function MarketplacePage() {
   return (
     <main className="min-h-screen bg-[#050810]">
       <AppNavbar />
-      <div className="pt-28 pb-16 px-6 max-w-7xl mx-auto">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="pt-28 pb-16 px-6 max-w-7xl mx-auto"
+      >
         {/* Page header */}
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[12px] text-white/50 mb-4">
@@ -216,12 +222,18 @@ export default function MarketplacePage() {
         {!isLoading && !isError && visible.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {visible.map((agent, i) => (
-              <AgentCard
+              <motion.div
                 key={agent.agentId}
-                agent={agent}
-                profile={profiles[agent.agentId] ?? null}
-                index={i}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.05, ease: "easeOut" }}
+              >
+                <AgentCard
+                  agent={agent}
+                  profile={profiles[agent.agentId] ?? null}
+                  index={i}
+                />
+              </motion.div>
             ))}
           </div>
         )}
@@ -237,7 +249,7 @@ export default function MarketplacePage() {
             </button>
           </div>
         )}
-      </div>
+      </motion.div>
       <Footer />
     </main>
   );
