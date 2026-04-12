@@ -33,10 +33,14 @@ function formatInterval(seconds: bigint): string {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-[#050810]/60 border border-white/10 px-4 py-3">
+    <motion.div
+      whileHover={{ scale: 1.02, borderColor: "rgba(255,255,255,0.2)" }}
+      transition={{ duration: 0.15 }}
+      className="rounded-xl bg-[#050810]/60 border border-white/10 px-4 py-3 cursor-default"
+    >
       <p className="text-[11px] text-white/40 uppercase tracking-wide mb-1">{label}</p>
       <p className="text-white text-[15px] font-medium">{value}</p>
-    </div>
+    </motion.div>
   );
 }
 
@@ -172,7 +176,12 @@ export default function SubscriptionDetailPage() {
   const webhookUrlValue    = subData.webhookUrl         as string;
 
   return (
-    <div className="max-w-3xl">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-3xl"
+    >
       {/* A. Back navigation */}
       <Link
         href="/dashboard"
@@ -400,6 +409,6 @@ export default function SubscriptionDetailPage() {
           )}
         </div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
