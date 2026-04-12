@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export interface AgentListing {
   agentId: number;
@@ -23,57 +23,87 @@ export interface AgentListing {
   totalEarningsWei: bigint;
 }
 
+interface OnChainAgent {
+  agentId: number;
+  owner: string;
+  agentWallet: string;
+  capabilityCID: string;
+  profileCID: string;
+  overallScore: number;
+  totalJobsCompleted: number;
+  totalJobsAttempted: number;
+  totalEarningsWei: string;
+  defaultRate: string;
+  createdAt: number;
+  isActive: boolean;
+}
+
+interface ApiResponse {
+  agents: OnChainAgent[];
+  total: number;
+}
+
+function mapOnChainToAgentListing(agent: OnChainAgent): AgentListing {
+  const defaultRateBig = BigInt(agent.defaultRate);
+  const ogRate = Number(defaultRateBig) / 1e18;
+
+  return {
+    agentId: agent.agentId,
+    capabilityCID: agent.capabilityCID,
+    name: `Agent #${agent.agentId}`,
+    skills: [],
+    skillIds: [],
+    rate: agent.defaultRate,
+    rateDisplay: ogRate.toFixed(3),
+    scoreDisplay: (agent.overallScore / 100).toFixed(1),
+    rating: agent.overallScore / 1000,
+    totalJobs: agent.totalJobsCompleted,
+    totalJobsCompleted: agent.totalJobsCompleted,
+    totalJobsAttempted: agent.totalJobsAttempted,
+    overallScore: agent.overallScore / 10000,
+    isActive: agent.isActive,
+    agentWallet: agent.agentWallet,
+    defaultRate: defaultRateBig,
+    createdAt: agent.createdAt,
+    totalEarningsWei: BigInt(agent.totalEarningsWei),
+  };
+}
+
 export function useAllAgents(enabled = true) {
   const [agents, setAgents] = useState<AgentListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAgents = async () => {
+  const fetchAgents = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const mockAgents: AgentListing[] = [
-        {
-          agentId: 1,
-          capabilityCID: "pm:agent-alpha-1",
-          name: "Agent Alpha",
-          skills: ["coding", "debugging"],
-          skillIds: ["skill-1", "skill-2"],
-          rate: "1000000",
-          rateDisplay: "1.0",
-          scoreDisplay: "4.8",
-          rating: 4.8,
-          totalJobs: 10,
-          totalJobsCompleted: 8,
-          totalJobsAttempted: 10,
-          overallScore: 0.95,
-          isActive: true,
-          agentWallet: "0x1234567890abcdef1234567890abcdef12345678",
-          defaultRate: BigInt(1000000),
-          createdAt: Date.now(),
-          totalEarningsWei: BigInt("85000000000000000"),
-        },
-      ];
-      setAgents(mockAgents);
+      const res = await fetch("/api/agents");
+      if (!res.ok) {
+        throw new Error(`HTTP error: ${res.status}`);
+      }
+      const data: ApiResponse = await res.json();
+      const mapped = data.agents.map(mapOnChainToAgentListing);
+      setAgents(mapped);
     } catch (err) {
+      console.error("[useAllAgents] Failed to fetch agents:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch agents");
+      setAgents([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (!enabled) return;
     fetchAgents();
-  }, [enabled]);
+  }, [enabled, fetchAgents]);
 
   return {
     agents,
     totalCount: agents.length,
     isLoading: loading,
     isError: !!error,
-    refetch: () => {
-      fetchAgents();
-    },
+    refetch: fetchAgents,
   };
 }

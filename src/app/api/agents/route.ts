@@ -1,0 +1,79 @@
+import { NextResponse } from "next/server";
+import { ethers } from "ethers";
+import { CONTRACT_ADDRESSES } from "@/lib/contracts";
+
+const AGENT_REGISTRY_ABI = [
+  "function totalAgents() view returns (uint256)",
+  "function getAgentProfile(uint256 agentId) view returns (tuple(address owner, address agentWallet, bytes eciesPublicKey, bytes32 capabilityHash, string capabilityCID, string profileCID, uint256 overallScore, uint256 totalJobsCompleted, uint256 totalJobsAttempted, uint256 totalEarningsWei, uint256 defaultRate, uint256 createdAt, bool isActive))",
+];
+
+const RPC_URL = "https://rpc-testnet.0g.ai";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+interface AgentProfile {
+  agentId: number;
+  owner: string;
+  agentWallet: string;
+  capabilityCID: string;
+  profileCID: string;
+  overallScore: number;
+  totalJobsCompleted: number;
+  totalJobsAttempted: number;
+  totalEarningsWei: string;
+  defaultRate: string;
+  createdAt: number;
+  isActive: boolean;
+}
+
+export async function GET() {
+  try {
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const contract = new ethers.Contract(
+      CONTRACT_ADDRESSES.AgentRegistry,
+      AGENT_REGISTRY_ABI,
+      provider
+    );
+
+    const totalAgentsBig = await contract.totalAgents();
+    const totalAgents = Number(totalAgentsBig);
+
+    if (totalAgents === 0) {
+      return NextResponse.json({ agents: [], total: 0 });
+    }
+
+    const agents: AgentProfile[] = [];
+
+    for (let i = 0; i < totalAgents; i++) {
+      try {
+        const profile = await contract.getAgentProfile(i);
+
+        agents.push({
+          agentId: i,
+          owner: profile[0],
+          agentWallet: profile[1],
+          capabilityCID: profile[4],
+          profileCID: profile[5],
+          overallScore: Number(profile[6]),
+          totalJobsCompleted: Number(profile[7]),
+          totalJobsAttempted: Number(profile[8]),
+          totalEarningsWei: profile[9].toString(),
+          defaultRate: profile[10].toString(),
+          createdAt: Number(profile[11]),
+          isActive: profile[12],
+        });
+      } catch (err) {
+        console.error(`[agents] Failed to fetch agent ${i}:`, err);
+      }
+    }
+
+    return NextResponse.json({ agents, total: totalAgents });
+  } catch (err) {
+    console.error("[agents] Fatal error:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : String(err) },
+      { status: 500 }
+    );
+  }
+}
