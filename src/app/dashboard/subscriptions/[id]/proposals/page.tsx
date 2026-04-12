@@ -42,10 +42,12 @@ function ProposalCard({
   proposal,
   isSelected,
   onClick,
+  index,
 }: {
   proposal: Proposal;
   isSelected: boolean;
   onClick: () => void;
+  index: number;
 }) {
   const rate = proposal.metadata?.rate_og || proposal.check_in_rate;
 
@@ -54,6 +56,7 @@ function ProposalCard({
       onClick={onClick}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05, duration: 0.3 }}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
       className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
@@ -340,7 +343,12 @@ export default function ProposalsPage() {
   const agent = agents.find((a) => a.agentId === selectedProposal?.agent_id) as AgentListing | undefined;
 
   return (
-    <div className="max-w-5xl">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-5xl"
+    >
       <Link
         href="/dashboard"
         className="flex items-center gap-2 text-white/40 hover:text-white/70 text-[13px] mb-6 transition-colors"
@@ -374,12 +382,13 @@ export default function ProposalsPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {proposals.map((proposal) => (
+                {proposals.map((proposal, index) => (
                   <ProposalCard
                     key={proposal.id}
                     proposal={proposal}
                     isSelected={selectedProposal?.id === proposal.id}
                     onClick={() => setSelectedProposal(proposal)}
+                    index={index}
                   />
                 ))}
               </div>
@@ -454,6 +463,6 @@ export default function ProposalsPage() {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
