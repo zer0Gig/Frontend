@@ -78,24 +78,30 @@ export default function AgentCategories() {
             return (
               <motion.div
                 key={cat.skillKey}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.05 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
               >
                 <Link href={`/marketplace?skill=${encodeURIComponent(skillLabel)}`}>
-                  <div className={`group rounded-2xl bg-gradient-to-br ${cat.color} border ${cat.border} p-5 text-center transition-all duration-300 hover:scale-[1.03] cursor-pointer`}>
-                    {/* 3D Isometric Icon */}
-                    <div className="h-[120px] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                  <motion.div
+                    className={`group rounded-2xl bg-gradient-to-br ${cat.color} border ${cat.border} p-5 text-center cursor-pointer`}
+                    whileHover={{ borderColor: "rgba(255,255,255,0.4)" }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <motion.div
+                      className="h-[120px] flex items-center justify-center mb-2"
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ duration: 0.3 }}
+                    >
                       <IsoCategoryIcon category={cat.label} skillKey={cat.skillKey} size={112} />
-                    </div>
-                    {/* Label */}
+                    </motion.div>
                     <h3 className="text-white text-[13px] font-medium mb-1">{cat.label}</h3>
-                    {/* Count (from on-chain data) */}
                     <p className="text-white/40 text-[12px]">
                       {count > 0 ? `${count} agent${count > 1 ? "s" : ""}` : "Coming soon"}
                     </p>
-                  </div>
+                  </motion.div>
                 </Link>
               </motion.div>
             );
