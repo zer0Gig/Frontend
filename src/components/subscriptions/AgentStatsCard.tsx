@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { useState, useEffect, useCallback } from "react";
@@ -8,8 +8,6 @@ import { supabase } from "@/lib/supabase";
 import type { AgentListing } from "@/hooks/useAllAgents";
 import type { AgentProfile } from "@/lib/supabase";
 import { Bot, Brain, Zap, Globe, Cloud, Search } from "lucide-react";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface AgentProposalStats {
   self_improvement_rate: number;
@@ -30,8 +28,6 @@ interface AgentStatsCardProps {
   profile: AgentProfile | null;
   isSelected?: boolean;
 }
-
-// â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const PALETTES = [
   { from: "from-violet-600", to: "to-blue-500", strokeFrom: "#8b5cf6", strokeTo: "#3b82f6", areaTo: "#3b82f6", barColor: "bg-blue-400", dotColor: "bg-blue-500", textColor: "text-blue-400", glowColor: "rgba(59,130,246,0.4)" },
@@ -67,14 +63,11 @@ const RUNTIME_COLORS: Record<string, string> = {
   "self-hosted": "bg-cyan-500/15 text-cyan-400 border-cyan-400/30",
 };
 
-// Pie chart magic radius for circumference = 100
 const PIE_RADIUS = 15.9155;
 
 function formatProvider(provider: string): string {
   return PROVIDER_LABELS[provider.toLowerCase()] || provider;
 }
-
-// â”€â”€ Skeleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function SkeletonCard() {
   return (
@@ -104,8 +97,6 @@ function SkeletonCard() {
     </div>
   );
 }
-
-// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: AgentStatsCardProps) {
   const palette = PALETTES[agentId % PALETTES.length];
@@ -148,8 +139,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
     }
   };
 
-  // â”€â”€ Derived values â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
   const displayName = profile?.display_name || `Agent #${agentId}`;
   const initials = profile?.display_name
     ? profile.display_name.slice(0, 2).toUpperCase()
@@ -177,7 +166,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
   const runtimeBadge = runtimeType ? RUNTIME_COLORS[runtimeType] : null;
   const hasStats = !!stats;
 
-  // Skill distribution for pie chart (top 3 skills by frequency simulation)
   const skillData = agent?.skills.length
     ? agent.skills.slice(0, 3).map((s, i) => ({
         label: s.length > 12 ? s.slice(0, 10) + ".." : s,
@@ -188,12 +176,10 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
         { label: "General", pct: 100, color: palette.strokeFrom },
       ];
 
-  // Success rate donut chart
   const circleRadius = 45;
   const circleCircumference = 2 * Math.PI * circleRadius;
   const strokeDashoffset = isLoaded ? circleCircumference - (successRate / 100) * circleCircumference : circleCircumference;
 
-  // Activity trend data (simulated from on-chain job data)
   const trendData = [40, 55, 48, 65, 52, 78, successRate];
   const trendPoints = trendData.map((v, i) => {
     const x = (i / (trendData.length - 1)) * 196 + 4;
@@ -204,15 +190,20 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
   const areaPath = `${trendPoints.map(p => `L${p.x.toFixed(0)},${p.y.toFixed(0)}`).join(" ")} L196,60 L4,60 Z`;
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-  // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
   if (loading) return <SkeletonCard />;
 
-  return (
-    <div className={`relative bg-[#0d1525]/60 border border-white/10 rounded-[1.5rem] overflow-hidden transition-all duration-1000 transform ${
-      isLoaded ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-3 scale-[0.98]"
-    } ${isSelected ? "border-white/20 shadow-2xl shadow-black/40" : "hover:border-white/15"}`}>
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+  };
 
+  const statItemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.4, ease: "easeOut" } })
+  };
+
+  return (
+    <motion.div variants={cardVariants} initial="hidden" animate="visible" whileHover={{ y: -2 }} className={`relative bg-[#0d1525]/60 border border-white/10 rounded-[1.5rem] overflow-hidden transition-all duration-1000 ${isSelected ? "border-white/20 shadow-2xl shadow-black/40" : "hover:border-white/15"}`}>
       {isSelected && (
         <BorderBeam
           colorFrom={palette.glowColor.replace("0.4)", "1)")}
@@ -223,12 +214,10 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
         />
       )}
 
-      {/* Top gradient line */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       <div className={`h-[2px] w-full bg-gradient-to-r ${palette.from} ${palette.to}`} />
 
       <div className="p-7">
-        {/* â”€â”€ Header: Profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="flex items-center space-x-4 relative z-10">
           <div className="relative group">
             <div className={`w-[72px] h-[72px] rounded-2xl bg-gradient-to-tr ${palette.from} ${palette.to} p-[1px] shadow-lg transition-transform duration-500 group-hover:scale-105`}>
@@ -240,7 +229,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
                 )}
               </div>
             </div>
-            {/* Status dot */}
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#0d1525] rounded-full flex items-center justify-center border border-zinc-800">
               <div className={`w-2.5 h-2.5 ${palette.dotColor} rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]`} />
             </div>
@@ -258,11 +246,11 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
               <span className={`${palette.textColor} font-semibold`}>
                 {agent?.isActive ? "Online" : "Offline"}
               </span>
-              <span>â€¢</span>
+              <span>•</span>
               <span>ID: {agentId}</span>
               {runtimeBadge && runtimeType && (
                 <>
-                  <span>â€¢</span>
+                  <span>•</span>
                   <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider border ${runtimeBadge}`}>
                     {stats?.runtime_type}
                   </span>
@@ -272,15 +260,13 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
           </div>
         </div>
 
-        {/* Divider */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-zinc-700/30 to-transparent my-6" />
 
-        {/* â”€â”€ Success Rate (Donut Chart) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="flex items-center justify-between mb-5 relative z-10">
           <div>
             <h2 className="text-white/35 text-[10px] font-bold uppercase tracking-wider mb-1.5">Success Rate</h2>
             <div className="flex items-baseline gap-1">
-              <p className="text-4xl font-bold text-white tracking-tighter">{successRate}</p>
+              <motion.p className="text-4xl font-bold text-white tracking-tighter" initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.5, ease: "backOut" }}>{successRate}</motion.p>
               <span className="text-lg text-white/30 font-light">%</span>
             </div>
             <p className={`text-xs ${palette.textColor} mt-2 flex items-center font-medium`}>
@@ -291,7 +277,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
             </p>
           </div>
 
-          {/* SVG Circular Progress (Donut) */}
           <div className="relative w-24 h-24 flex items-center justify-center group">
             <div className={`absolute inset-0 ${palette.dotColor.replace("500", "500").replace("-", "-")}/5 rounded-full blur-xl transition-all duration-500 group-hover:${palette.dotColor.replace("500", "500")}/10`} />
             <svg className="w-full h-full transform -rotate-90 relative z-10" viewBox="0 0 100 100">
@@ -318,7 +303,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
           </div>
         </div>
 
-        {/* â”€â”€ Activity Trend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="mb-4 relative z-10">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-white/35 text-[9px] font-bold uppercase tracking-widest">Activity Trend</h2>
@@ -355,33 +339,30 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
           </div>
         </div>
 
-        {/* â”€â”€ Stats Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="grid grid-cols-2 gap-3 relative z-10 mb-3">
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+          <motion.div variants={statItemVariants} initial="hidden" animate="visible" custom={0} className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
             <div className="flex items-center text-white/30 mb-1.5">
               <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span className="text-[9px] font-bold uppercase tracking-widest">Tasks Done</span>
             </div>
-            <p className="text-lg font-semibold text-white tracking-tight">{tasksCompleted}<span className="text-xs text-white/30 font-medium ml-0.5"></span></p>
-          </div>
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
+            <motion.p className="text-lg font-semibold text-white tracking-tight" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.4 }}>{tasksCompleted}<span className="text-xs text-white/30 font-medium ml-0.5"></span></motion.p>
+          </motion.div>
+          <motion.div variants={statItemVariants} initial="hidden" animate="visible" custom={1} className="bg-white/[0.03] border border-white/5 rounded-2xl p-3.5">
             <div className="flex items-center text-white/30 mb-1.5">
               <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2" />
               </svg>
               <span className="text-[9px] font-bold uppercase tracking-widest">Skills</span>
             </div>
-            <p className="text-lg font-semibold text-white tracking-tight">{skillsCount}</p>
-          </div>
+            <motion.p className="text-lg font-semibold text-white tracking-tight" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4, duration: 0.4 }}>{skillsCount}</motion.p>
+          </motion.div>
         </div>
 
-        {/* â”€â”€ Task Distribution Pie Chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 relative z-10">
           <h2 className="text-white/35 text-[9px] font-bold uppercase tracking-widest mb-3">Task Distribution</h2>
           <div className="flex items-center gap-4">
-            {/* Pie Chart */}
             <div className="w-24 h-24 relative flex-shrink-0">
               <svg viewBox="-4 -4 40 40" className="w-full h-full transform -rotate-90" overflow="visible">
                 {skillData.reduce((acc, skill, i) => {
@@ -400,7 +381,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
               </svg>
             </div>
 
-            {/* Legend */}
             <div className="flex flex-col gap-2 min-w-0">
               {skillData.map((skill, i) => (
                 <div key={i} className="flex items-center justify-between text-[10px] font-medium text-white">
@@ -415,7 +395,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
           </div>
         </div>
 
-        {/* â”€â”€ Empty state + Sync button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {!hasStats && !syncing && (
           <div className="mt-4 px-3 py-3 bg-white/[0.03] rounded-lg border border-white/[0.06] text-center">
             <p className="text-[11px] text-white/30 mb-2">Stats not yet synced from chain</p>
@@ -439,6 +418,6 @@ export function AgentStatsCard({ agentId, agent, profile, isSelected = false }: 
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
