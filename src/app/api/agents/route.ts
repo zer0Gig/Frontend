@@ -7,7 +7,7 @@ const AGENT_REGISTRY_ABI = [
   "function getAgentProfile(uint256 agentId) view returns (tuple(address owner, address agentWallet, bytes eciesPublicKey, bytes32 capabilityHash, string capabilityCID, string profileCID, uint256 overallScore, uint256 totalJobsCompleted, uint256 totalJobsAttempted, uint256 totalEarningsWei, uint256 defaultRate, uint256 createdAt, bool isActive))",
 ];
 
-const RPC_URL = "https://rpc-testnet.0g.ai";
+const RPC_URL = "https://evmrpc-testnet.0g.ai";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -28,6 +28,8 @@ interface AgentProfile {
 }
 
 export async function GET() {
+  const errors: string[] = [];
+
   try {
     const provider = new ethers.JsonRpcProvider(RPC_URL);
     const contract = new ethers.Contract(
@@ -38,6 +40,8 @@ export async function GET() {
 
     const totalAgentsBig = await contract.totalAgents();
     const totalAgents = Number(totalAgentsBig);
+
+    console.log(`[agents] totalAgents returned: ${totalAgents}`);
 
     if (totalAgents === 0) {
       return NextResponse.json({ agents: [], total: 0 });
@@ -63,12 +67,21 @@ export async function GET() {
           createdAt: Number(profile[11]),
           isActive: profile[12],
         });
+        console.log(`[agents] Successfully fetched agent ${i}`);
       } catch (err) {
+        const msg = `Agent ${i}: ${err instanceof Error ? err.message : String(err)}`;
+        errors.push(msg);
         console.error(`[agents] Failed to fetch agent ${i}:`, err);
       }
     }
 
-    return NextResponse.json({ agents, total: totalAgents });
+    console.log(`[agents] Total fetched: ${agents.length}, errors: ${errors.length}`);
+
+    return NextResponse.json({ 
+      agents, 
+      total: totalAgents,
+      errors: errors.length > 0 ? errors : undefined 
+    });
   } catch (err) {
     console.error("[agents] Fatal error:", err);
     return NextResponse.json(
