@@ -61,13 +61,21 @@ export default function JobCard({ jobId, index }: JobCardProps) {
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
+        whileHover={{ y: -2 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
-        className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0d1525]/90 px-4 py-3.5 hover:border-white/20 transition-colors cursor-pointer"
+        className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#0d1525]/90 px-4 py-3.5 cursor-pointer"
+        style={{
+          transition: 'border-color 0.2s ease, background-color 0.2s ease'
+        }}
       >
         {/* Status badge */}
-        <span className={`px-2.5 py-1 rounded-full text-[12px] ${status.bg} ${status.text}`}>
+        <motion.span
+          className={`px-2.5 py-1 rounded-full text-[12px] ${status.bg} ${status.text}`}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.15 }}
+        >
           {status.label}
-        </span>
+        </motion.span>
 
         {/* Job ID + agent */}
         <div className="flex-1 min-w-0">
@@ -96,9 +104,16 @@ export default function JobCard({ jobId, index }: JobCardProps) {
         </div>
 
         {/* Arrow */}
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white/30 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+        <motion.svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-4 h-4 text-white/30 flex-shrink-0"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          whileHover={{ x: 3 }}
+          transition={{ duration: 0.15 }}
+        >
           <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L11.586 9H5a1 1 0 110-2h6.586l-4.293-4.293a1 1 0 011.414-1.414l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0z" clipRule="evenodd" />
-        </svg>
+        </motion.svg>
       </motion.div>
     </Link>
   );
