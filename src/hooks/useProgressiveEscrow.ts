@@ -1,7 +1,7 @@
 "use client";
 
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from "wagmi";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { CONTRACT_CONFIG } from "@/lib/contracts";
 import { Address } from "viem";
 
@@ -296,15 +296,26 @@ export function useProgressiveEscrow() {
 }
 
 export function usePostJob() {
-  const { writeContractAsync, isPending } = useWriteContract();
+  const { writeContractAsync, isPending: isWritePending } = useWriteContract();
+  const [isPending, setIsPending] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
+  const { isSuccess } = useWaitForTransactionReceipt({ hash: txHash as `0x${string}` | undefined });
+
+  useEffect(() => {
+    if (isSuccess && txHash) {
+      setIsConfirmed(true);
+      setIsPending(false);
+    }
+  }, [isSuccess, txHash]);
+
   const postJob = async (cid: string, skillBytes32: `0x${string}`) => {
     setIsConfirming(false);
     setIsConfirmed(false);
+    setIsPending(true);
     setError(null);
 
     try {
@@ -319,9 +330,10 @@ export function usePostJob() {
       return hash;
     } catch (err) {
       setError(err as Error);
+      setIsPending(false);
       throw err;
     }
   };
 
-  return { postJob, isPending, isConfirming, isConfirmed, txHash, error };
+  return { postJob, isPending: isPending || isWritePending, isConfirming, isConfirmed, txHash, error };
 }
