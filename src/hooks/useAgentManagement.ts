@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useReadContract } from "wagmi";
+import { CONTRACT_CONFIG } from "@/lib/contracts";
+import { Address } from "viem";
 
 export interface Skill {
   id: string;
@@ -102,7 +105,16 @@ export function useTotalAgents() {
 }
 
 export function useAgentSkills(agentId: bigint | string | undefined) {
-  const [data, setData] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  return { data, isLoading: loading };
+  const enabled = agentId !== undefined;
+  const { data: bytes32Skills, isLoading, isError, error } = useReadContract({
+    address: CONTRACT_CONFIG.AgentRegistry.address as Address,
+    abi: CONTRACT_CONFIG.AgentRegistry.abi,
+    functionName: 'getAgentSkills',
+    args: enabled ? [BigInt(agentId)] : undefined,
+    query: { enabled },
+  });
+
+  const data = bytes32Skills ? bytes32ToSkillLabels(bytes32Skills as string[]) : [];
+
+  return { data, isLoading, isError, error };
 }
