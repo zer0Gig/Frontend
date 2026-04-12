@@ -19,7 +19,7 @@ export default function JobCard({ jobId, index }: JobCardProps) {
   const displayName = profile?.display_name || "";
   
   // DEMO MODE: Fall back to mock data when real job doesn't exist on-chain
-  const mockJob = MOCK_JOBS.find(j => j.jobId === jobId);
+  const mockJob = MOCK_JOBS.find(j => j.jobId === jobId.toString());
   const job = (jobRaw as unknown as JobData) || (mockJob ? {
     jobId: BigInt(mockJob.jobId),
     client: mockJob.client,

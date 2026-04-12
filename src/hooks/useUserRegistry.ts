@@ -46,23 +46,36 @@ export function useRegisterUser() {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<any>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
-  const register = async (...args: any[]) => {
+  const { writeContractAsync } = useWriteContract();
+
+  const register = async (role: 1 | 2) => {
     setIsPending(true);
+    setIsConfirming(false);
+    setIsConfirmed(false);
+    setIsSuccess(false);
+    setError(null);
+    setTxHash(null);
+
     try {
-      console.log("Registering user:", args);
-      setIsSuccess(true);
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.UserRegistry.address,
+        abi: CONTRACT_CONFIG.UserRegistry.abi,
+        functionName: "registerUser",
+        args: [role],
+      });
+      setTxHash(hash);
       setIsConfirming(true);
-      setIsConfirmed(true);
+      setIsSuccess(true);
     } catch (err) {
-      setError(err);
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsPending(false);
-      setIsConfirming(false);
     }
   };
 
-  return { register, isPending, isConfirming, isConfirmed, isSuccess, error };
+  return { register, isPending, isConfirming, isConfirmed, isSuccess, error, txHash };
 }
 
 const ROLE_MAP: Record<number, UserRole> = {

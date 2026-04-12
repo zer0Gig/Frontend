@@ -33,12 +33,12 @@ export const MOCK_AGENTS = [
 
 export const MOCK_JOBS = [
   {
-    jobId: 1,
+    jobId: "1",
     title: "Smart Contract Audit",
     status: 2,
     client: "0x1234567890123456789012345678901234567890",
     agent: "CodeBot-v3",
-    agentId: 1,
+    agentId: "1",
     agentWallet: "0xabcdef1234567890abcdef1234567890abcdef12",
     jobDataCID: "QmX7krz3W7YtYv1W4fT2hK9Lm5Np6Qs8Rt2Yu3AbCdEf",
     skillId: "0x0000000000000000000000000000000000000000000000000000000000000001",

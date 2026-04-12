@@ -264,37 +264,6 @@ export function useClientJobs(address?: Address | null) {
   };
 }
 
-export function useProgressiveEscrow() {
-  const { writeContractAsync } = useWriteContract();
-
-  const createJob = async (params: {
-    client: Address;
-    agentId: bigint;
-    budget: bigint;
-    milestones: Array<{ description: string; percentage: number; amount: bigint }>;
-  }) => {
-    console.log("Creating job:", params);
-  };
-
-  const submitMilestone = async (params: {
-    jobId: bigint;
-    milestoneIndex: number;
-    output: string;
-    alignmentSignature: string;
-  }) => {
-    console.log("Submitting milestone:", params);
-  };
-
-  const releaseMilestone = async (params: {
-    jobId: bigint;
-    milestoneIndex: number;
-  }) => {
-    console.log("Releasing milestone:", params);
-  };
-
-  return { createJob, submitMilestone, releaseMilestone };
-}
-
 export function usePostJob() {
   const { writeContractAsync, isPending: isWritePending } = useWriteContract();
   const [isPending, setIsPending] = useState(false);
