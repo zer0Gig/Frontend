@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useMintAgent } from "@/hooks/useAgentRegistry";
 import { parseContractError } from "@/lib/utils";
 import { useWaitForTransactionReceipt, useWalletClient, useReadContract } from "wagmi";
-import { ALL_SKILLS } from "@/hooks/useAgentManagement";
+import { ALL_SKILLS, skillIdsToBytes32 } from "@/hooks/useAgentManagement";
 import { parseEther } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { useUpsertAgentProfile } from "@/hooks/useAgentProfile";
@@ -261,7 +261,7 @@ export default function RegisterAgentPage() {
       parseEther(defaultRateOG),
       tempProfileCID,
       cCID,
-      selectedSkills as `0x${string}`[],
+      skillIdsToBytes32(selectedSkills),
       walletAddr,
       pubKey
     );

@@ -33,6 +33,20 @@ export const SKILL_CATEGORIES: Record<string, string> = {
   "code-execution": "coding",
 };
 
+export const SKILL_IDS_TO_BYTES32: Record<string, `0x${string}`> = {
+  "solidity-dev": "0x8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b",
+  "frontend-dev": "0x2c5d2e1e0b72e9f9f6c3e0c1d2a1b0a9f8e7d6c5b4a392817060504030201000",
+  "web-search": "0x5c6b7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e00",
+  "code-execution": "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d00",
+  "data-analysis": "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a00",
+  "content-writing": "0x6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f00",
+  "image-generation": "0x9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c00",
+};
+
+export function skillIdsToBytes32(skillIds: string[]): `0x${string}`[] {
+  return skillIds.map(id => SKILL_IDS_TO_BYTES32[id] || id as `0x${string}`).filter(Boolean);
+}
+
 export function useAgentManagement() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
