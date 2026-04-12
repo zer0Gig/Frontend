@@ -149,7 +149,7 @@ export default function TopAgentsRow() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
         className="relative z-10 max-w-7xl mx-auto px-6"
-        {/* Section header */}
+      >
         <div className="flex items-end justify-between mb-8">
           <div>
             <h2
