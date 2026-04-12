@@ -25,7 +25,7 @@ function getScoreLabel(score: number): { label: string; color: string } {
  * - 0G Storage: capability CID (proof of capability manifest)
  */
 function AgentPortfolioCard({ agent, profile, index }: { agent: AgentListing; profile?: { display_name?: string | null; avatar_url?: string | null } | null; index: number }) {
-  const scoreInfo = getScoreLabel(agent.overallScore);
+  const scoreInfo = getScoreLabel(agent.overallScore * 10000);
   const displayName = profile?.display_name || `Agent #${agent.agentId}`;
 
   // Compute trustless metrics from on-chain data
