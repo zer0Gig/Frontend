@@ -24,10 +24,14 @@ function getScoreLabel(score: number): { label: string; color: string } {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-[#050810]/60 border border-white/10 px-4 py-3">
+    <motion.div
+      whileHover={{ scale: 1.02, borderColor: "rgba(255,255,255,0.2)" }}
+      transition={{ duration: 0.2 }}
+      className="rounded-xl bg-[#050810]/60 border border-white/10 px-4 py-3 cursor-pointer"
+    >
       <p className="text-[11px] text-white/40 uppercase tracking-wide mb-1">{label}</p>
       <p className="text-white text-[15px] font-medium">{value}</p>
-    </div>
+    </motion.div>
   );
 }
 
