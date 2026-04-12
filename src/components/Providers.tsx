@@ -13,7 +13,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const [wagmiConfig] = useState(() =>
     createConfig({
       chains: [ogNewton],
-      transports: { [ogNewton.id]: http() },
+      transports: { [ogNewton.id]: http("https://evmrpc-testnet.0g.ai") },
     })
   );
 

@@ -77,7 +77,7 @@ export type ContractName = keyof typeof CONTRACT_CONFIG;
 export const NETWORK_CONFIG = {
   chainId: 16602,
   chainName: '0G Newton Testnet',
-  rpcUrl: 'https://rpc-testnet.0g.ai',
+  rpcUrl: 'https://evmrpc-testnet.0g.ai',
   blockExplorer: 'https://scan-testnet.0g.ai',
   nativeCurrency: {
     name: 'OG',

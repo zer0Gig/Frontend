@@ -49,7 +49,10 @@ export async function GET() {
 
     const agents: AgentProfile[] = [];
 
-    for (let i = 0; i < totalAgents; i++) {
+    const maxIdToCheck = Math.min(totalAgents + 2, 100);
+    let foundCount = 0;
+
+    for (let i = 0; i < maxIdToCheck && foundCount < totalAgents; i++) {
       try {
         const profile = await contract.getAgentProfile(i);
 
@@ -67,11 +70,14 @@ export async function GET() {
           createdAt: Number(profile[11]),
           isActive: profile[12],
         });
+        foundCount++;
         console.log(`[agents] Successfully fetched agent ${i}`);
       } catch (err) {
-        const msg = `Agent ${i}: ${err instanceof Error ? err.message : String(err)}`;
-        errors.push(msg);
-        console.error(`[agents] Failed to fetch agent ${i}:`, err);
+        const msg = err instanceof Error ? err.message : String(err);
+        if (!msg.includes("does not exist")) {
+          errors.push(`Agent ${i}: ${msg}`);
+        }
+        console.log(`[agents] Skipping agent ${i} (does not exist or error)`);
       }
     }
 
