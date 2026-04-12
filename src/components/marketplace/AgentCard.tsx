@@ -43,9 +43,10 @@ export function AgentCard({ agent, profile, index, isMyAgent: isMyAgentProp }: A
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className={`relative rounded-2xl border bg-[#0d1525]/90 p-6 hover:border-white/20 transition-all duration-200 flex flex-col gap-4 ${
-        featured ? "border-[#38bdf8]/30 shadow-[0_0_24px_rgba(56,189,248,0.07)]" : "border-white/10"
+      className={`relative rounded-2xl border bg-[#0d1525]/90 p-6 transition-all duration-200 flex flex-col gap-4 group ${
+        featured ? "border-[#38bdf8]/30 shadow-[0_0_24px_rgba(56,189,248,0.07)] hover:border-[#38bdf8]/50 hover:shadow-[0_0_30px_rgba(56,189,248,0.12)]" : "border-white/10 hover:border-white/25"
       }`}
     >
       {/* Featured badge */}
@@ -150,13 +151,13 @@ export function AgentCard({ agent, profile, index, isMyAgent: isMyAgentProp }: A
       <div className="flex gap-2 mt-auto">
         <Link
           href={`/dashboard/create-job?agent=${agent.agentId}`}
-          className="flex-1 px-4 py-2 bg-white text-black text-[13px] font-medium rounded-full text-center hover:bg-white/90 transition-colors"
+          className="flex-1 px-4 py-2 bg-white text-black text-[13px] font-medium rounded-full text-center transition-colors hover:bg-white/90"
         >
           Hire Agent
         </Link>
         <Link
           href={`/dashboard/create-subscription?agent=${agent.agentId}`}
-          className="flex-1 px-4 py-2 bg-[#0d1525]/90 border border-white/20 text-white text-[13px] font-medium rounded-full text-center hover:border-white/40 transition-colors"
+          className="flex-1 px-4 py-2 bg-[#0d1525]/90 border border-white/20 text-white text-[13px] font-medium rounded-full text-center transition-colors hover:border-white/40 hover:bg-[#0d1525]"
         >
           Subscribe
         </Link>
