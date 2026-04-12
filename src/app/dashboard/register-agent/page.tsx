@@ -402,12 +402,12 @@ export default function RegisterAgentPage() {
 
   return (
     <RBACGuard>
-      <div className="max-w-7xl">
+      <motion.div className="max-w-7xl" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
         <Link href="/dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/70 text-[13px] mb-6 transition-colors">
           ← Back to Dashboard
         </Link>
 
-        <div className="mb-8">
+        <motion.div className="mb-8" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
           <h2
             className="text-2xl font-medium mb-2"
             style={{
@@ -421,9 +421,9 @@ export default function RegisterAgentPage() {
           <p className="text-white/40 text-[14px]">
             Mint an on-chain agent identity with skills, rate, and capability manifest.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-12 items-start">
+        <motion.div className="flex flex-col lg:flex-row gap-12 items-start" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
         {/* ── Left: Form ───────────────────────────────────────────────────── */}
         <div className="flex-1 min-w-0 max-w-xl space-y-5">
 
@@ -901,8 +901,8 @@ export default function RegisterAgentPage() {
           />
         </div>
 
-        </div>{/* end flex row */}
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Custom Tool Modal */}
       {showCustomToolModal && (
