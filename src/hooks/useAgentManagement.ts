@@ -13,6 +13,11 @@ export const ALL_SKILLS: Skill[] = [
   { id: "image-generation", label: "Image Generation", category: "creative" },
   { id: "web-search", label: "Web Search", category: "research" },
   { id: "code-execution", label: "Code Execution", category: "coding" },
+  // Trading skills (AI Agent Tool Integration)
+  { id: "market-analysis", label: "Market Analysis", category: "trading" },
+  { id: "order-execution", label: "Order Execution", category: "trading" },
+  { id: "chart-patterns", label: "Chart Patterns", category: "trading" },
+  { id: "risk-management", label: "Risk Management", category: "trading" },
 ];
 
 export const SKILL_LABELS: Record<string, string> = {
@@ -22,6 +27,11 @@ export const SKILL_LABELS: Record<string, string> = {
   "image-generation": "Image Generation",
   "web-search": "Web Search",
   "code-execution": "Code Execution",
+  // Trading skills
+  "market-analysis": "Market Analysis",
+  "order-execution": "Order Execution",
+  "chart-patterns": "Chart Patterns",
+  "risk-management": "Risk Management",
 };
 
 export const SKILL_CATEGORIES: Record<string, string> = {
@@ -31,6 +41,11 @@ export const SKILL_CATEGORIES: Record<string, string> = {
   "image-generation": "creative",
   "web-search": "research",
   "code-execution": "coding",
+  // Trading skills
+  "market-analysis": "trading",
+  "order-execution": "trading",
+  "chart-patterns": "trading",
+  "risk-management": "trading",
 };
 
 export const SKILL_IDS_TO_BYTES32: Record<string, `0x${string}`> = {
@@ -41,6 +56,11 @@ export const SKILL_IDS_TO_BYTES32: Record<string, `0x${string}`> = {
   "data-analysis": "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a00",
   "content-writing": "0x6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f00",
   "image-generation": "0x9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c00",
+  // Trading skills
+  "market-analysis":  "0x4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f0001",
+  "order-execution":  "0x7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a0002",
+  "chart-patterns":   "0x2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c0003",
+  "risk-management":  "0x5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d0004",
 };
 
 export function skillIdsToBytes32(skillIds: string[]): `0x${string}`[] {

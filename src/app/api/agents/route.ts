@@ -41,54 +41,22 @@ export async function GET() {
     const totalAgentsBig = await contract.totalAgents();
     const totalAgents = Number(totalAgentsBig);
 
-    console.log(`[agents] totalAgents returned: ${totalAgents} (type: ${typeof totalAgents})`);
-    console.log(`[agents] BigInt conversion: ${BigInt(totalAgents)}`);
-    console.log(`[agents] Number conversion: ${Number(totalAgents)}`);
+    console.log(`[agents] totalAgents on contract = ${totalAgents}`);
 
-    if (totalAgents === 0) {
-      return NextResponse.json({ agents: [], total: 0 });
-    }
-
-    const agentCount = Number(totalAgents);
-    console.log(`[agents] Will query agents 0 to ${agentCount - 1} (${agentCount} total)`);
+    // Query up to totalAgents + 1 to catch any off-by-one issues
+    const maxToQuery = totalAgents + 2;
+    console.log(`[agents] Will query agents 0 to ${maxToQuery - 1} (${maxToQuery} total)`);
 
     const agents: AgentProfile[] = [];
 
-    // First, try to query agent 9 directly (user's newest agent)
-    console.log(`[agents] Attempting direct query for agent 9...`);
-    try {
-      const profile9 = await contract.getAgentProfile(9);
-      if (profile9[0] !== "0x0000000000000000000000000000000000000000") {
-        console.log(`[agents] Agent 9 FOUND on-chain! Owner: ${profile9[0]}`);
-        agents.push({
-          agentId: 9,
-          owner: profile9[0],
-          agentWallet: profile9[1],
-          capabilityCID: profile9[4],
-          profileCID: profile9[5],
-          overallScore: Number(profile9[6]),
-          totalJobsCompleted: Number(profile9[7]),
-          totalJobsAttempted: Number(profile9[8]),
-          totalEarningsWei: profile9[9].toString(),
-          defaultRate: profile9[10].toString(),
-          createdAt: Number(profile9[11]),
-          isActive: profile9[12],
-        });
-      } else {
-        console.log(`[agents] Agent 9 exists but has zero owner address`);
-      }
-    } catch (err) {
-      console.log(`[agents] Agent 9 not found on-chain: ${err instanceof Error ? err.message : String(err)}`);
-    }
-
-    for (let i = 0; i < agentCount; i++) {
+    for (let i = 0; i < maxToQuery; i++) {
       console.log(`[agents] Querying agent ${i}...`);
       try {
         const profile = await contract.getAgentProfile(i);
 
         // Skip if owner is zero address (deleted/unregistered agent)
         if (profile[0] === "0x0000000000000000000000000000000000000000") {
-          console.log(`[agents] Skipping agent ${i} - zero owner address (deleted?)`);
+          console.log(`[agents] Skipping agent ${i} - zero owner address`);
           continue;
         }
 
@@ -110,10 +78,9 @@ export async function GET() {
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
         if (errorMsg.includes("agent does not exist")) {
-          console.log(`[agents] Skipping agent ${i} - does not exist`);
+          console.log(`[agents] Agent ${i} does not exist on-chain`);
         } else {
           console.log(`[agents] ERROR fetching agent ${i}: ${errorMsg}`);
-          console.error(`[agents] Failed to fetch agent ${i}:`, err);
         }
       }
     }
