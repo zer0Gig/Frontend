@@ -97,6 +97,10 @@ export function useAllAgents(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     fetchAgents();
+
+    const handleFocus = () => fetchAgents();
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, [enabled, fetchAgents]);
 
   return {
