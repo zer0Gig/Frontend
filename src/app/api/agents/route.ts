@@ -50,6 +50,7 @@ export async function GET() {
     const agents: AgentProfile[] = [];
 
     for (let i = 0; i < totalAgents; i++) {
+      console.log(`[agents] Querying agent ${i}...`);
       try {
         const profile = await contract.getAgentProfile(i);
 
@@ -73,8 +74,7 @@ export async function GET() {
         if (errorMsg.includes("agent does not exist")) {
           console.log(`[agents] Skipping agent ${i} - does not exist`);
         } else {
-          const msg = `Agent ${i}: ${errorMsg}`;
-          errors.push(msg);
+          console.log(`[agents] ERROR fetching agent ${i}: ${errorMsg}`);
           console.error(`[agents] Failed to fetch agent ${i}:`, err);
         }
       }
