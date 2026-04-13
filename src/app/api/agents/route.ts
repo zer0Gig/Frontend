@@ -59,6 +59,12 @@ export async function GET() {
       try {
         const profile = await contract.getAgentProfile(i);
 
+        // Skip if owner is zero address (deleted/unregistered agent)
+        if (profile[0] === "0x0000000000000000000000000000000000000000") {
+          console.log(`[agents] Skipping agent ${i} - zero owner address (deleted?)`);
+          continue;
+        }
+
         agents.push({
           agentId: i,
           owner: profile[0],
