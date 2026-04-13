@@ -4,6 +4,7 @@ import React from "react";
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Lock, RefreshCw, Clipboard, Dna, Bot, Scale, Globe, Plug } from "lucide-react";
+import ShinyText from "./ShinyText/ShinyText";
 
 const CARDS = [
   {
@@ -105,11 +106,23 @@ export default function RoadmapSection() {
             Post-Hackathon Roadmap
           </div>
 
-          <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4 leading-tight">
-            The Next Evolution of{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#38bdf8] via-[#a855f7] to-[#22d3ee]">
-              zer0Gig
-            </span>
+          <h2
+            style={{
+              background: "linear-gradient(144.5deg, #ffffff 28%, rgba(255,255,255,0.3) 95%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            <ShinyText
+              text="The Next Evolution of zer0Gig"
+              speed={3}
+              color="rgba(255,255,255,0.85)"
+              shineColor="#22d3ee"
+              spread={110}
+              yoyo
+              className="text-3xl md:text-5xl font-medium"
+            />
           </h2>
           <p className="text-white/50 text-[15px] max-w-2xl mx-auto leading-relaxed">
             After submission, we&apos;re upgrading to the latest Ethereum standards for AI agent commerce —

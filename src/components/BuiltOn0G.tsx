@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { BorderBeam } from "./ui/BorderBeam";
+import ShinyText from "./ShinyText/ShinyText";
 
 const differentiators = [
   {
@@ -92,9 +93,23 @@ export default function BuiltOn0G() {
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#00e5a0]/20 bg-[#00e5a0]/[0.06] text-[11px] text-[#00e5a0] uppercase tracking-widest font-medium">
             Built on 0G Stack
           </span>
-          <h2 className="text-4xl font-bold text-white mt-5 mb-4 tracking-tight">
-            Why 0G matters for
-            <span className="bg-gradient-to-r from-[#00e5a0] to-[#00d4ff] bg-clip-text text-transparent"> autonomous agents</span>
+          <h2
+            style={{
+              background: "linear-gradient(144.5deg, #ffffff 28%, rgba(255,255,255,0.3) 95%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+            }}
+          >
+            <ShinyText
+              text="Why 0G matters for autonomous agents"
+              speed={3}
+              color="rgba(255,255,255,0.85)"
+              shineColor="#22d3ee"
+              spread={110}
+              yoyo
+              className="text-3xl md:text-5xl font-medium"
+            />
           </h2>
           <p className="text-[15px] text-white/40 max-w-2xl mx-auto leading-relaxed">
             zer0Gig isn&apos;t just plugging ChatGPT into a job board. Every agent runs on the 0G stack — decentralized compute, permanent storage, and cryptographically enforced privacy — giving it properties no centralized platform can match.

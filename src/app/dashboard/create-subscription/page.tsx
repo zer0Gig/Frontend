@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useWalletClient } from "wagmi";
@@ -37,14 +37,12 @@ function labelForInterval(seconds: number): string {
 
 export default function CreateSubscriptionPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const { data: walletClient } = useWalletClient();
   const walletAddress = walletClient?.account.address;
 
-  const { agents } = useAllAgents();
+  const { createSubscription } = useCreateSubscription();
 
-  const [selectedAgentId, setSelectedAgentId] = useState<string>(searchParams?.get("agent") || "");
   const [taskDescription, setTaskDescription] = useState("");
   const [checkInRateOG, setCheckInRateOG] = useState("");
   const [alertRateOG, setAlertRateOG] = useState("");
@@ -60,17 +58,15 @@ export default function CreateSubscriptionPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { createSubscription } = useCreateSubscription();
-
   const effectiveInterval = intervalPreset === 0 ? parseInt(customInterval) || 0 : intervalPreset;
 
   const handleCreate = async () => {
-    if (!selectedAgentId || !taskDescription || !checkInRateOG || !budgetOG) return;
+    if (!taskDescription || !checkInRateOG || !budgetOG) return;
     setIsPending(true);
     setError(null);
 
     try {
-      await createSubscription(BigInt(selectedAgentId),
+      await createSubscription(0n,
         taskDescription,
         BigInt(effectiveInterval),
         parseEther(checkInRateOG),
@@ -91,7 +87,7 @@ export default function CreateSubscriptionPage() {
     }
   };
 
-  const canSubmit = selectedAgentId && taskDescription && checkInRateOG && budgetOG && !isPending;
+  const canSubmit = taskDescription && checkInRateOG && budgetOG && !isPending;
 
   return (
     <div className="max-w-2xl">
@@ -112,10 +108,10 @@ export default function CreateSubscriptionPage() {
             backgroundClip: "text",
           }}
         >
-          Hire an Agent
+          Post a Subscription Request
         </h2>
         <p className="text-white/40 text-[14px]">
-          Subscribe to an agent for recurring services. Funds locked on-chain, auto-released per check-in.
+          Describe your recurring task. Agents will propose and compete for your subscription.
         </p>
       </div>
 
@@ -125,22 +121,6 @@ export default function CreateSubscriptionPage() {
         transition={{ duration: 0.3 }}
         className="rounded-2xl border border-white/10 bg-[#0d1525]/90 p-6 space-y-5"
       >
-        <div>
-          <label className="block text-[13px] text-white/50 mb-2">Select Agent</label>
-          <select
-            value={selectedAgentId}
-            onChange={(e) => setSelectedAgentId(e.target.value)}
-            className="w-full bg-[#050810]/80 border border-white/10 rounded-xl px-4 py-3 text-white text-[14px] focus:outline-none focus:border-white/30"
-          >
-            <option value="">Choose an agent...</option>
-            {agents.map((agent) => (
-              <option key={agent.agentId} value={agent.agentId}>
-                #{agent.agentId} — {agent.skills?.join(", ") || "General"}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div>
           <label className="block text-[13px] text-white/50 mb-2">Task Description</label>
           <textarea
@@ -253,10 +233,6 @@ export default function CreateSubscriptionPage() {
         <div className="rounded-xl bg-[#050810]/60 border border-white/10 p-4">
           <p className="text-[12px] text-white/40 uppercase tracking-wide mb-3">Summary</p>
           <div className="space-y-1.5 text-[13px]">
-            <div className="flex justify-between">
-              <span className="text-white/50">Selected Agent</span>
-              <span className="text-white">#{selectedAgentId || "—"}</span>
-            </div>
             <div className="flex justify-between">
               <span className="text-white/50">Interval</span>
               <span className="text-white">{labelForInterval(effectiveInterval)}</span>
