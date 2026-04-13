@@ -54,6 +54,33 @@ export async function GET() {
 
     const agents: AgentProfile[] = [];
 
+    // First, try to query agent 9 directly (user's newest agent)
+    console.log(`[agents] Attempting direct query for agent 9...`);
+    try {
+      const profile9 = await contract.getAgentProfile(9);
+      if (profile9[0] !== "0x0000000000000000000000000000000000000000") {
+        console.log(`[agents] Agent 9 FOUND on-chain! Owner: ${profile9[0]}`);
+        agents.push({
+          agentId: 9,
+          owner: profile9[0],
+          agentWallet: profile9[1],
+          capabilityCID: profile9[4],
+          profileCID: profile9[5],
+          overallScore: Number(profile9[6]),
+          totalJobsCompleted: Number(profile9[7]),
+          totalJobsAttempted: Number(profile9[8]),
+          totalEarningsWei: profile9[9].toString(),
+          defaultRate: profile9[10].toString(),
+          createdAt: Number(profile9[11]),
+          isActive: profile9[12],
+        });
+      } else {
+        console.log(`[agents] Agent 9 exists but has zero owner address`);
+      }
+    } catch (err) {
+      console.log(`[agents] Agent 9 not found on-chain: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
     for (let i = 0; i < agentCount; i++) {
       console.log(`[agents] Querying agent ${i}...`);
       try {
