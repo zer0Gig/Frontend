@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { animate } from "animejs";
 import { useOpenJobs, useJobDetails, useJobProposals } from "@/hooks/useProgressiveEscrow";
 import { useUserRole, UserRole } from "@/hooks/useUserRegistry";
