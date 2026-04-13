@@ -69,9 +69,14 @@ export async function GET() {
         });
         console.log(`[agents] Successfully fetched agent ${i}`);
       } catch (err) {
-        const msg = `Agent ${i}: ${err instanceof Error ? err.message : String(err)}`;
-        errors.push(msg);
-        console.error(`[agents] Failed to fetch agent ${i}:`, err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        if (errorMsg.includes("agent does not exist")) {
+          console.log(`[agents] Skipping agent ${i} - does not exist`);
+        } else {
+          const msg = `Agent ${i}: ${errorMsg}`;
+          errors.push(msg);
+          console.error(`[agents] Failed to fetch agent ${i}:`, err);
+        }
       }
     }
 
