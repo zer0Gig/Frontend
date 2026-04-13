@@ -39,7 +39,13 @@ export default function AgentCategories() {
   }, [agents]);
 
   return (
-    <section className="relative py-16 md:py-20 overflow-hidden">
+    <motion.section
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative py-16 md:py-20 overflow-hidden"
+    >
       {/* Background glows */}
       <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-cyan-500/[0.04] blur-[150px] pointer-events-none" />
       <div className="absolute top-1/2 right-0 w-[400px] h-[400px] rounded-full bg-purple-500/[0.04] blur-[150px] pointer-events-none" />
@@ -102,6 +108,6 @@ export default function AgentCategories() {
           })}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

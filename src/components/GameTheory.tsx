@@ -43,7 +43,13 @@ const scenarios = [
 
 export default function GameTheory() {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden">
+    <motion.section
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative py-24 md:py-32 overflow-hidden"
+    >
       {/* Background glow */}
       <div className="absolute top-1/4 left-0 w-[500px] h-[500px] rounded-full bg-green-500/[0.05] blur-[150px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] rounded-full bg-red-500/[0.05] blur-[120px] pointer-events-none" />
@@ -195,6 +201,6 @@ export default function GameTheory() {
           </motion.div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

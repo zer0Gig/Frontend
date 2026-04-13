@@ -207,7 +207,14 @@ export default function IsometricAgent() {
   const selectedLayer = activeId ? LAYERS.find((l) => l.id === activeId) : null;
 
   return (
-    <section id="developers" className="relative overflow-hidden">
+    <motion.section
+      id="developers"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative overflow-hidden"
+    >
       <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full bg-cyan-500/[0.04] blur-[150px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-purple-500/[0.04] blur-[120px] pointer-events-none" />
 
@@ -464,6 +471,6 @@ export default function IsometricAgent() {
           </AnimatePresence>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

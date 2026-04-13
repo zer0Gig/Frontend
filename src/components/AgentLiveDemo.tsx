@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 
 interface LogLine {
   text: string;
@@ -147,7 +148,13 @@ export default function AgentLiveDemo() {
   }, [resetAnimation]);
 
   return (
-    <section className="relative py-16 overflow-hidden">
+    <motion.section
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="relative py-16 overflow-hidden"
+    >
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050810]/50 to-transparent" />
 
       <div className="relative max-w-4xl mx-auto px-6">
@@ -243,6 +250,6 @@ export default function AgentLiveDemo() {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
