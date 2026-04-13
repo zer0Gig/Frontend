@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { usePostJob } from "@/hooks/useProgressiveEscrow";
 import { useReadContract } from "wagmi";
 import { CONTRACT_CONFIG, SKILL_IDS } from "@/lib/contracts";
@@ -9,7 +10,6 @@ import Link from "next/link";
 import { parseContractError } from "@/lib/utils";
 import FuturisticSelect from "@/components/ui/FuturisticSelect";
 
-// Single source of truth — values come from contracts.ts
 const SKILL_OPTIONS = [
   { value: "",                          label: "No specific skill" },
   { value: SKILL_IDS.solidityDev,      label: "Solidity Development" },
@@ -37,7 +37,6 @@ function CreateJobForm() {
     functionName: "totalJobs",
   });
 
-  // When transaction confirms, redirect to job detail page
   useEffect(() => {
     if (isConfirmed && totalJobs !== undefined) {
       const newJobId = Number(totalJobs);
@@ -47,8 +46,6 @@ function CreateJobForm() {
 
   const handleSubmit = () => {
     if (!description) return;
-    // Encode the full job brief as txt:base64 so the agent can decode it directly
-    // (no need to upload to 0G Storage — agent decodes the CID string itself)
     const brief = JSON.stringify({ title, description });
     const cid = `txt:${btoa(unescape(encodeURIComponent(brief)))}`;
     const skillBytes32: `0x${string}` = skill as `0x${string}` || "0x0000000000000000000000000000000000000000000000000000000000000000";
@@ -58,7 +55,12 @@ function CreateJobForm() {
   const isSubmitting = isPending || isConfirming;
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-[#050810] min-h-screen">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="max-w-2xl mx-auto p-6 bg-[#050810] min-h-screen"
+    >
       <Link href="/dashboard" className="flex items-center gap-2 text-white/40 hover:text-white/70 text-[13px] mb-8 transition-colors">
         ← Back to Dashboard
       </Link>
@@ -70,7 +72,6 @@ function CreateJobForm() {
 
       <div className="bg-[#0d1525]/90 rounded-2xl border border-white/10 p-6">
         <div className="space-y-6">
-          {/* Title */}
           <div>
             <label className="block text-white/40 text-[13px] mb-2">Job Title</label>
             <input
@@ -82,7 +83,6 @@ function CreateJobForm() {
             />
           </div>
 
-          {/* Skill */}
           <div>
             <label className="block text-white/40 text-[13px] mb-2">Required Skill (optional)</label>
             <FuturisticSelect
@@ -102,7 +102,6 @@ function CreateJobForm() {
             </p>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-white/40 text-[13px] mb-2">Job Description</label>
             <textarea
@@ -117,7 +116,6 @@ function CreateJobForm() {
             </p>
           </div>
 
-          {/* Budget hint — informational only */}
           <div>
             <label className="block text-white/40 text-[13px] mb-2">
               Budget Range <span className="text-white/20">(informational only)</span>
@@ -134,7 +132,6 @@ function CreateJobForm() {
             </p>
           </div>
 
-          {/* Info box */}
           <div className="rounded-xl bg-[#38bdf8]/5 border border-[#38bdf8]/15 px-4 py-3 flex gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#38bdf8] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -168,7 +165,7 @@ function CreateJobForm() {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
