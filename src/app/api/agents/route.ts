@@ -41,15 +41,20 @@ export async function GET() {
     const totalAgentsBig = await contract.totalAgents();
     const totalAgents = Number(totalAgentsBig);
 
-    console.log(`[agents] totalAgents returned: ${totalAgents}`);
+    console.log(`[agents] totalAgents returned: ${totalAgents} (type: ${typeof totalAgents})`);
+    console.log(`[agents] BigInt conversion: ${BigInt(totalAgents)}`);
+    console.log(`[agents] Number conversion: ${Number(totalAgents)}`);
 
     if (totalAgents === 0) {
       return NextResponse.json({ agents: [], total: 0 });
     }
 
+    const agentCount = Number(totalAgents);
+    console.log(`[agents] Will query agents 0 to ${agentCount - 1} (${agentCount} total)`);
+
     const agents: AgentProfile[] = [];
 
-    for (let i = 0; i < totalAgents; i++) {
+    for (let i = 0; i < agentCount; i++) {
       console.log(`[agents] Querying agent ${i}...`);
       try {
         const profile = await contract.getAgentProfile(i);
