@@ -28,8 +28,6 @@ interface AgentProfile {
 }
 
 export async function GET() {
-  const errors: string[] = [];
-
   try {
     const provider = new ethers.JsonRpcProvider(RPC_URL);
     const contract = new ethers.Contract(
@@ -41,22 +39,16 @@ export async function GET() {
     const totalAgentsBig = await contract.totalAgents();
     const totalAgents = Number(totalAgentsBig);
 
-    console.log(`[agents] totalAgents on contract = ${totalAgents}`);
-
-    // Query up to totalAgents + 1 to catch any off-by-one issues
+    // Query up to totalAgents + 2 to catch any off-by-one issues
     const maxToQuery = totalAgents + 2;
-    console.log(`[agents] Will query agents 0 to ${maxToQuery - 1} (${maxToQuery} total)`);
-
     const agents: AgentProfile[] = [];
 
     for (let i = 0; i < maxToQuery; i++) {
-      console.log(`[agents] Querying agent ${i}...`);
       try {
         const profile = await contract.getAgentProfile(i);
 
         // Skip if owner is zero address (deleted/unregistered agent)
         if (profile[0] === "0x0000000000000000000000000000000000000000") {
-          console.log(`[agents] Skipping agent ${i} - zero owner address`);
           continue;
         }
 
@@ -74,26 +66,17 @@ export async function GET() {
           createdAt: Number(profile[11]),
           isActive: profile[12],
         });
-        console.log(`[agents] Successfully fetched agent ${i}`);
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        if (errorMsg.includes("agent does not exist")) {
-          console.log(`[agents] Agent ${i} does not exist on-chain`);
-        } else {
-          console.log(`[agents] ERROR fetching agent ${i}: ${errorMsg}`);
-        }
+        // Silently skip agents that don't exist
+        continue;
       }
     }
-
-    console.log(`[agents] Total fetched: ${agents.length}, errors: ${errors.length}`);
 
     return NextResponse.json({ 
       agents, 
       total: totalAgents,
-      errors: errors.length > 0 ? errors : undefined 
     });
   } catch (err) {
-    console.error("[agents] Fatal error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
       { status: 500 }
