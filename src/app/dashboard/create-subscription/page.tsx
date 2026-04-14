@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useWalletClient } from "wagmi";
+import { useWalletClient, useWaitForTransactionReceipt } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import { parseEther } from "viem";
 import { useAllAgents } from "@/hooks/useAllAgents";
 import { useCreateSubscription } from "@/hooks/useSubscriptionEscrow";
@@ -42,8 +43,18 @@ export default function CreateSubscriptionPage() {
   const { data: walletClient } = useWalletClient();
   const walletAddress = walletClient?.account.address;
 
-  const { createSubscription } = useCreateSubscription();
+  const { createSubscription, txHash, isSuccess: txSent } = useCreateSubscription();
   const { agents, isLoading: agentsLoading } = useAllAgents(true);
+  const { isSuccess: txConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (txConfirmed) {
+      queryClient.invalidateQueries({ queryKey: ["client-subscriptions"] });
+      setIsSuccess(true);
+      setTimeout(() => router.push("/dashboard"), 1500);
+    }
+  }, [txConfirmed, queryClient, router]);
 
   const [taskDescription, setTaskDescription] = useState("");
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
@@ -67,6 +78,7 @@ export default function CreateSubscriptionPage() {
     if (!taskDescription || !checkInRateOG || !budgetOG || !selectedAgentId) return;
     setIsPending(true);
     setError(null);
+    setIsSuccess(false);
 
     try {
       await createSubscription(BigInt(selectedAgentId),
@@ -81,11 +93,8 @@ export default function CreateSubscriptionPage() {
         webhookUrl,
         parseEther(budgetOG)
       );
-      setIsSuccess(true);
-      setTimeout(() => router.push("/dashboard"), 2000);
     } catch (err: any) {
       setError(err?.message || "Transaction failed");
-    } finally {
       setIsPending(false);
     }
   };

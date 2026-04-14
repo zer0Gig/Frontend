@@ -39,7 +39,7 @@ export function useTotalSubscriptions() {
 }
 
 export function useCreateSubscription() {
-  const { writeContractAsync, isPending, isSuccess, isError, error } = useWriteContract();
+  const { writeContractAsync, isPending, isSuccess, isError, error, data: txHash } = useWriteContract();
 
   const createSubscription = async (
     agentId: bigint,
@@ -64,7 +64,7 @@ export function useCreateSubscription() {
     return hash;
   };
 
-  return { createSubscription, isPending, isSuccess, isError, error };
+  return { createSubscription, isPending, isSuccess, isError, error, txHash };
 }
 
 export function useTopUp() {
