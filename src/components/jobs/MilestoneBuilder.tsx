@@ -50,8 +50,11 @@ export default function MilestoneBuilder({
     handleOnChange(milestones.filter((_, i) => i !== index));
   };
 
+  const totalPercent = milestones.reduce((sum, m) => sum + m.percentage, 0);
+  const isValid = totalPercent === 100 && milestones.every(m => m.percentage > 0 && Number.isInteger(m.percentage));
+
   const handleSubmit = () => {
-    if (!onSubmit) return;
+    if (!onSubmit || !isValid) return;
     const percentages = milestones.map(m => m.percentage);
     const criteria = milestones.map(m => m.description);
     onSubmit(percentages, criteria);
@@ -99,9 +102,14 @@ export default function MilestoneBuilder({
         + Add Milestone
       </button>
       {onSubmit && (
+        <div className="mt-4 p-3 bg-white/5 rounded-lg">
+          <p className="text-white/60 text-[12px]">Total: <span className={totalPercent === 100 ? "text-emerald-400" : "text-red-400"}>{totalPercent}%</span> {totalPercent !== 100 && <span className="text-red-400">(must be exactly 100%)</span>}</p>
+        </div>
+      )}
+      {onSubmit && (
         <button
           onClick={handleSubmit}
-          disabled={isPending || milestones.length === 0}
+          disabled={isPending || milestones.length === 0 || !isValid}
           className="w-full px-6 py-3 bg-white text-black text-[14px] font-medium rounded-full disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isPending ? "Confirm in wallet..." : "Define Milestones"}

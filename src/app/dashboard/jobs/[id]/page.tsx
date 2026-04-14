@@ -470,6 +470,15 @@ function DefineMilestonesPanel({ jobId, onDefined }: { jobId: number; onDefined:
       </p>
       <MilestoneBuilder
         onSubmit={(percentages, criteria) => {
+          const total = percentages.reduce((sum, p) => sum + p, 0);
+          if (total !== 100) {
+            alert(`Percentages must sum to 100. Current total: ${total}`);
+            return;
+          }
+          if (!percentages.every(p => Number.isInteger(p))) {
+            alert("Percentages must be whole numbers (integers)");
+            return;
+          }
           const hashes = criteria.map((c) => keccak256(toBytes(c)));
           defineMilestones({ jobId: BigInt(jobId), percentages, criteriaHashes: hashes });
         }}
