@@ -222,6 +222,58 @@ export function useDefineMilestones() {
   };
 }
 
+export function useReleaseMilestone() {
+  const { writeContractAsync, isPending: isWritePending } = useWriteContract();
+  const [isPending, setIsPending] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const releaseMilestone = async (params: {
+    jobId: bigint;
+    milestoneIndex: number;
+    outputCID: string;
+    alignmentScore: bigint;
+    signature: `0x${string}`;
+  }) => {
+    setIsPending(true);
+    setIsConfirming(false);
+    setIsConfirmed(false);
+    setError(null);
+
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_CONFIG.ProgressiveEscrow.address,
+        abi: CONTRACT_CONFIG.ProgressiveEscrow.abi,
+        functionName: "releaseMilestone",
+        args: [
+          params.jobId,
+          BigInt(params.milestoneIndex),
+          params.outputCID,
+          params.alignmentScore,
+          params.signature,
+        ],
+      });
+      setIsConfirming(true);
+      setIsPending(false);
+      return hash;
+    } catch (err) {
+      setError(err as Error);
+      setIsPending(false);
+      setIsConfirming(false);
+      throw err;
+    }
+  };
+
+  return {
+    releaseMilestone,
+    isPending: isPending || isWritePending,
+    isConfirming,
+    isConfirmed,
+    error,
+  };
+}
+
 export function useOpenJobs() {
   const { data: openJobIds, isLoading, refetch } = useReadContract({
     address: CONTRACT_CONFIG.ProgressiveEscrow.address,

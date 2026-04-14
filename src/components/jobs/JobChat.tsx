@@ -16,6 +16,7 @@ export default function JobChat({ jobId }: { jobId: number }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Load history + subscribe to realtime
@@ -49,16 +50,21 @@ export default function JobChat({ jobId }: { jobId: number }) {
     const text = input.trim();
     if (!text || sending) return;
     setSending(true);
-    setInput("");
+    setError(null);
 
     try {
-      await fetch("/api/job-chat", {
+      const res = await fetch("/api/job-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobId, sender: "user", message: text }),
       });
-    } catch {
-      /* ignore */
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send message");
+      }
+      setInput("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
       setSending(false);
     }
@@ -116,11 +122,18 @@ export default function JobChat({ jobId }: { jobId: number }) {
         <div ref={bottomRef} />
       </div>
 
+      {/* Error display */}
+      {error && (
+        <div className="px-4 py-2 bg-red-500/10 border-t border-red-500/20">
+          <p className="text-red-400 text-[12px]">{error}</p>
+        </div>
+      )}
+
       {/* Input */}
       <div className="px-4 py-3 border-t border-white/10 flex gap-2">
         <textarea
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => { setInput(e.target.value); setError(null); }}
           onKeyDown={handleKey}
           placeholder="Message the agent… (Enter to send)"
           rows={1}
@@ -131,7 +144,7 @@ export default function JobChat({ jobId }: { jobId: number }) {
           disabled={!input.trim() || sending}
           className="px-4 py-2 rounded-xl bg-[#38bdf8]/15 border border-[#38bdf8]/20 text-[#38bdf8] text-[13px] font-semibold hover:bg-[#38bdf8]/25 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Send
+          {sending ? "..." : "Send"}
         </button>
       </div>
     </div>

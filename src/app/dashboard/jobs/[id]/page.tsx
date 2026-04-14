@@ -33,6 +33,7 @@ import FuturisticSelect, { SelectOption } from "@/components/ui/FuturisticSelect
 import { AgentStatsCard } from "@/components/subscriptions/AgentStatsCard";
 import AgentActivityByWallet from "@/components/jobs/AgentActivityByWallet";
 import JobChat from "@/components/jobs/JobChat";
+import MilestoneSubmitPanel from "@/components/jobs/MilestoneSubmitPanel";
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 // Job status enum: 0=OPEN, 1=PENDING_MILESTONES, 2=IN_PROGRESS, 3=COMPLETED, 4=CANCELLED, 5=PARTIALLY_DONE
@@ -495,11 +496,19 @@ function MilestoneTimeline({
   jobId,
   milestoneCount,
   totalBudgetWei,
+  agentWallet,
+  currentAddress,
+  onSubmitMilestone,
 }: {
   jobId: number;
   milestoneCount: number;
   totalBudgetWei: bigint;
+  agentWallet?: Address;
+  currentAddress?: Address;
+  onSubmitMilestone?: (milestoneIndex: number) => void;
 }) {
+  const isAgent = currentAddress?.toLowerCase() === agentWallet?.toLowerCase();
+
   const contracts = Array.from({ length: milestoneCount }, (_, i) => ({
     address: CONTRACT_CONFIG.ProgressiveEscrow.address,
     abi: CONTRACT_CONFIG.ProgressiveEscrow.abi,
@@ -602,6 +611,14 @@ function MilestoneTimeline({
               {retryCount > 0n && (
                 <p className="text-amber-400/70 text-[12px] mt-1">Retry {retryCount.toString()}/5</p>
               )}
+              {(status === 0 || status === 4) && isAgent && onSubmitMilestone && (
+                <button
+                  onClick={() => onSubmitMilestone(index)}
+                  className="mt-3 px-3 py-1.5 bg-white text-black text-[12px] font-medium rounded-full hover:bg-white/90 transition-colors"
+                >
+                  Submit Work
+                </button>
+              )}
             </div>
           </div>
         );
@@ -617,6 +634,8 @@ function JobDetailInner({ jobId }: { jobId: number }) {
   const router = useRouter();
   const { address } = useAccount();
   const { role } = useUserRole(address as Address | undefined);
+
+  const [submittingMilestoneIndex, setSubmittingMilestoneIndex] = useState<number | null>(null);
 
   const { data: jobRaw, isLoading, isError, refetch } = useJobDetails(jobId);
   const job = jobRaw as unknown as JobData | undefined;
@@ -877,9 +896,26 @@ function JobDetailInner({ jobId }: { jobId: number }) {
               jobId={jobId}
               milestoneCount={Number(job.milestoneCount)}
               totalBudgetWei={job.totalBudgetWei}
+              agentWallet={job.agentWallet as Address | undefined}
+              currentAddress={address as Address | undefined}
+              onSubmitMilestone={(index) => setSubmittingMilestoneIndex(index)}
             />
           ) : (
             <p className="text-white/30 text-[13px] text-center py-6">No milestones defined yet.</p>
+          )}
+
+          {/* Milestone Submit Panel (for agents) */}
+          {submittingMilestoneIndex !== null && (
+            <MilestoneSubmitPanel
+              jobId={jobId}
+              agentWallet={job.agentWallet as Address | undefined}
+              milestoneIndex={submittingMilestoneIndex}
+              milestoneDescription={`Milestone ${submittingMilestoneIndex + 1}`}
+              onSubmitted={() => {
+                setSubmittingMilestoneIndex(null);
+                refetch();
+              }}
+            />
           )}
         </div>
         </>
