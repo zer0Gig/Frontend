@@ -123,8 +123,11 @@ function buildCapabilityManifest(
 
   // Encode as base64 — platform dispatcher decodes this prefix format
   // "pm:<base64>" = platform managed, "sh:<base64>" = self-hosted
+  // Use encodeURIComponent to safely handle any Unicode characters (btoa only supports Latin1)
+  const jsonStr = JSON.stringify(manifest);
+  const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
   const prefix = runtimeType === "platform_managed" ? "pm" : "sh";
-  return `${prefix}:${btoa(JSON.stringify(manifest))}`;
+  return `${prefix}:${base64}`;
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
