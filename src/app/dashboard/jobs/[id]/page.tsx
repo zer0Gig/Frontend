@@ -32,6 +32,7 @@ import MilestoneBuilder from "@/components/jobs/MilestoneBuilder";
 import FuturisticSelect, { SelectOption } from "@/components/ui/FuturisticSelect";
 import { AgentStatsCard } from "@/components/subscriptions/AgentStatsCard";
 import AgentActivityByWallet from "@/components/jobs/AgentActivityByWallet";
+import JobChat from "@/components/jobs/JobChat";
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 // Job status enum: 0=OPEN, 1=PENDING_MILESTONES, 2=IN_PROGRESS, 3=COMPLETED, 4=CANCELLED, 5=PARTIALLY_DONE
@@ -856,10 +857,15 @@ function JobDetailInner({ jobId }: { jobId: number }) {
       {/* ── IN_PROGRESS / COMPLETED / PARTIALLY_DONE: milestone timeline ── */}
       {job.status >= JOB_STATUS.IN_PROGRESS && job.status !== JOB_STATUS.CANCELLED && (
         <>
-          {/* Agent Activity (live from Supabase) */}
-          {job.agentWallet && (
-            <AgentActivityByWallet agentWallet={job.agentWallet} maxEntries={15} />
-          )}
+          {/* Agent Activity + Chat side by side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Agent Activity (live from Supabase) */}
+            {job.agentWallet && (
+              <AgentActivityByWallet agentWallet={job.agentWallet} maxEntries={15} />
+            )}
+            {/* Live Chat with Agent */}
+            <JobChat jobId={jobId} />
+          </div>
 
           {/* Milestone Timeline */}
           <div className="rounded-2xl border border-white/10 bg-[#0d1525]/90 p-6 mb-6">
