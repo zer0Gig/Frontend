@@ -55,7 +55,7 @@ const LLM_PROVIDERS: { value: LLMProvider; label: string; color: string; default
   { value: "0g_compute",  label: "0G Compute",  color: "#38bdf8", defaultModel: "qwen-2.5-7b",               needsKey: false, image: "/providers/0G-removebg-preview.png"          },
   { value: "groq",        label: "Groq",        color: "#f59e0b", defaultModel: "llama-3.3-70b-versatile",   needsKey: true,  image: "/providers/groq-removebg-preview.png"        },
   { value: "openai",      label: "OpenAI",      color: "#10b981", defaultModel: "gpt-4o-mini",               needsKey: true,  image: "/providers/openAI-removebg-preview.png"      },
-  { value: "anthropic",   label: "Anthropic",   color: "#a855f7", defaultModel: "claude-haiku-4-5-20251001", needsKey: true,  image: "/providers/claudeImage-removebg-preview.png" },
+  { value: "anthropic",   label: "Anthropic",   color: "#a855f7", defaultModel: "claude-sonnet-4-6",         needsKey: true,  image: "/providers/claudeImage-removebg-preview.png" },
   { value: "openrouter",  label: "OpenRouter",  color: "#6366f1", defaultModel: "openai/gpt-4o",             needsKey: true,  image: "/providers/openrouter-removebg-preview.png"  },
   { value: "alibaba",     label: "Alibaba",     color: "#f97316", defaultModel: "qwen-max",                  needsKey: true,  image: "/providers/alibaba-removebg-preview.png"     },
   { value: "google",      label: "Google",      color: "#22c55e", defaultModel: "gemini-1.5-pro-latest",     needsKey: true,  image: "/providers/google-removebg-preview.png"      },

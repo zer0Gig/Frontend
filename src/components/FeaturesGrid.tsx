@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import ShinyText from "./ShinyText/ShinyText";
 import { BorderBeam } from "./ui/BorderBeam";
@@ -59,6 +59,42 @@ const animStyles = `
 .float-f { animation: cardFloatFast 1.8s ease-in-out infinite; }
 .piston-a { animation: cardPiston 1.2s ease-in-out infinite; }
 .pulse-a { animation: cardPulse 2s ease-in-out infinite; }
+
+/* Snake patrol — CSS lines through grid gutters only */
+.snake-grid-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.snake-grid-lines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Horizontal lines at gutter positions (between rows) */
+  background:
+    linear-gradient(90deg, rgba(56, 189, 248, 0.25) 0%, rgba(168, 85, 247, 0.25) 50%, rgba(34, 211, 238, 0.25) 100%) 0 33.33% / 100% 1px no-repeat,
+    linear-gradient(90deg, rgba(34, 211, 238, 0.25) 0%, rgba(56, 189, 248, 0.25) 50%, rgba(168, 85, 247, 0.25) 100%) 0 66.67% / 100% 1px no-repeat;
+  animation: snakeFadeH 8s ease-in-out infinite;
+}
+.snake-grid-lines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Vertical lines at gutter positions (between columns) */
+  background:
+    linear-gradient(180deg, rgba(168, 85, 247, 0.25) 0%, rgba(56, 189, 248, 0.25) 50%, rgba(34, 211, 238, 0.25) 100%) 33.33% 0 / 1px 100% no-repeat,
+    linear-gradient(180deg, rgba(56, 189, 248, 0.25) 0%, rgba(34, 211, 238, 0.25) 50%, rgba(168, 85, 247, 0.25) 100%) 66.67% 0 / 1px 100% no-repeat;
+  animation: snakeFadeV 8s ease-in-out infinite;
+}
+@keyframes snakeFadeH {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+@keyframes snakeFadeV {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
 `;
 
 // ── Feature data with unique 3D renders ─────────────────────────
@@ -105,8 +141,8 @@ const features = [
   {
     title: "0G AI Alignment Nodes",
     description: "175,000+ decentralized nodes evaluate output quality as a neutral arbiter — no single point of failure.",
-    accent: "#22c55e",
-    deep: "#081a0e",
+    accent: "#16a34a",
+    deep: "#040e08",
     pattern: "cross",
     render: (cx: number, cy: number) => {
       const nodes = mkCircle(0, 0, 3.5, 8).sort((a, b) => (a.x + a.y) - (b.x + b.y));
@@ -149,8 +185,8 @@ const features = [
   {
     title: "0G Storage",
     description: "Permanent agent portfolio on decentralized storage. 95% cheaper than AWS S3, censorship-resistant.",
-    accent: "#06b6d4",
-    deep: "#051a22",
+    accent: "#0891b2",
+    deep: "#030d12",
     pattern: "lines",
     render: (cx: number, cy: number) => (
       <g>
@@ -170,8 +206,8 @@ const features = [
   {
     title: "Sealed Inference (TEE)",
     description: "Client data stays encrypted end-to-end. Even node operators can't see your prompts or model outputs.",
-    accent: "#ec4899",
-    deep: "#200a18",
+    accent: "#be185d",
+    deep: "#100310",
     pattern: "hex",
     render: (cx: number, cy: number) => (
       <g>
@@ -301,6 +337,81 @@ function PatternDefs() {
   );
 }
 
+// ─── Snake Patrol Line Component ──────────────────────────────────────
+// A single subtle glowing line that snakes through the grid gutters,
+// matching the dark minimal aesthetic. No head dot — pure CSS animation.
+
+function SnakePatrolLine() {
+  const lineRef = useRef<SVGPathElement>(null);
+  const glowRef = useRef<SVGPathElement>(null);
+
+  // Path traces the grid gutters in a continuous serpentine loop.
+  // For a 3×3 grid, gutters sit at 33.33% and 66.67%.
+  function generatePatrolPath(): string {
+    const g1 = 33.33;
+    const g2 = 66.67;
+
+    // Continuous loop: weaves through all gutter intersections
+    const pts: [number, number][] = [
+      [0, g1], [g1, g1], [g1, 0],
+      [g2, 0], [g2, g1], [100, g1],
+      [100, g2], [g2, g2], [g2, 100],
+      [g1, 100], [g1, g2], [0, g2],
+      [0, g1],
+    ];
+
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const prev = pts[i - 1];
+      const curr = pts[i];
+      const dx = curr[0] - prev[0];
+      const dy = curr[1] - prev[1];
+      d += ` C ${prev[0] + dx * 0.35} ${prev[1] + dy * 0.35}, ${prev[0] + dx * 0.65} ${prev[1] + dy * 0.65}, ${curr[0]} ${curr[1]}`;
+    }
+    return d;
+  }
+
+  useEffect(() => {
+    const pathEl = lineRef.current;
+    const glowEl = glowRef.current;
+    if (!pathEl) return;
+
+    const pathLength = pathEl.getTotalLength();
+    pathEl.style.setProperty('--pl', String(pathLength));
+    if (glowEl) glowEl.style.setProperty('--pl', String(pathLength));
+  }, []);
+
+  const patrolPath = generatePatrolPath();
+
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none -z-10"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      style={{ overflow: 'visible' }}
+    >
+      {/* Soft outer glow */}
+      <path
+        ref={glowRef}
+        d={patrolPath}
+        className="snake-glow"
+        stroke="rgba(255, 255, 255, 0.06)"
+        strokeWidth="2"
+        opacity="0.5"
+      />
+      {/* Core line */}
+      <path
+        ref={lineRef}
+        d={patrolPath}
+        className="snake-line"
+        stroke="rgba(56, 189, 248, 0.25)"
+        strokeWidth="0.6"
+        opacity="0.8"
+      />
+    </svg>
+  );
+}
+
 // ── Main component ──────────────────────────────────────────────
 export default function FeaturesGrid() {
   return (
@@ -331,8 +442,9 @@ export default function FeaturesGrid() {
           Built on the 0G Stack — from infra to intelligence
         </motion.h2>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {/* Grid with Snake Patrol overlay */}
+        <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="card-grid">
           {features.map((f, i) => (
             <motion.div
               key={f.title}
@@ -340,7 +452,7 @@ export default function FeaturesGrid() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: i * 0.12, ease: [0.21, 1.11, 0.81, 0.99] }}
-              className="group relative overflow-hidden rounded-2xl cursor-pointer"
+              className="group relative overflow-hidden rounded-2xl cursor-pointer z-10"
               style={{
                 background: f.deep,
                 border: `1px solid ${f.accent}15`,
@@ -401,6 +513,10 @@ export default function FeaturesGrid() {
               </div>
             </motion.div>
           ))}
+          </div>
+
+          {/* Snake Patrol SVG Overlay — single animated line patrolling the grid */}
+          <SnakePatrolLine />
         </div>
       </div>
     </section>

@@ -541,8 +541,8 @@ function MilestoneTimeline({
     <div className="space-y-6">
       {milestones.map((milestone, index) => {
         if (!milestone || !milestone.result) return null;
-        const [percentage, amountWei, , outputCID, alignmentScore, status, retryCount] =
-          milestone.result as unknown as [bigint, bigint, string, string, bigint, number, bigint];
+        const result = milestone.result as { percentage: bigint; amountWei: bigint; status: number; outputCID: string; alignmentScore: bigint; retryCount: bigint; [key: string]: unknown };
+        const { percentage, amountWei, status, outputCID, alignmentScore, retryCount } = result;
         const statusDotStyle = getStatusDotStyles(status);
         const statusBadge = getMilestoneBadge(status);
 

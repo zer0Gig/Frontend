@@ -21,6 +21,76 @@ interface CustomToolModalProps {
   onClose: () => void;
 }
 
+// ─── MCP CATALOG ────────────────────────────────────────────────────────────
+
+const MCP_CATALOG = [
+  {
+    id: "composio",
+    name: "Composio",
+    description: "250+ app integrations — GitHub, Slack, Notion, Gmail, and more",
+    endpoint: "https://mcp.composio.dev/composio/mcp",
+    endpointPlaceholder: "https://mcp.composio.dev/composio/mcp?api_key=YOUR_KEY",
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    color: "#a855f7",
+    badge: "250+ apps",
+    needsKey: true,
+  },
+  {
+    id: "alpaca",
+    name: "Alpaca Markets",
+    description: "Stocks & crypto trading — market data, orders, portfolio management",
+    endpoint: "https://paper-api.alpaca.markets/v2",
+    endpointPlaceholder: "https://paper-api.alpaca.markets/v2",
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4v16" />
+      </svg>
+    ),
+    color: "#10b981",
+    badge: "Trading",
+    needsKey: true,
+    type: "http" as ToolType,
+  },
+  {
+    id: "playwright",
+    name: "Playwright MCP",
+    description: "Browser automation — navigate pages, click, fill forms, scrape data",
+    endpoint: "ws://localhost:3001",
+    endpointPlaceholder: "ws://localhost:3001",
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path strokeLinecap="round" d="M3 9h18M9 21V9"/>
+      </svg>
+    ),
+    color: "#f59e0b",
+    badge: "Browser",
+    needsKey: false,
+  },
+  {
+    id: "shadcn",
+    name: "shadcn/ui MCP",
+    description: "Component library — search components, get code, add to your project",
+    endpoint: "ws://localhost:3002",
+    endpointPlaceholder: "ws://localhost:3002",
+    icon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <path strokeLinecap="round" d="M8 21h8M12 17v4"/>
+      </svg>
+    ),
+    color: "#38bdf8",
+    badge: "UI Dev",
+    needsKey: false,
+  },
+] as const;
+
+// ─── COMPONENT ───────────────────────────────────────────────────────────────
+
 export default function CustomToolModal({
   mode,
   initialTool,
@@ -33,8 +103,19 @@ export default function CustomToolModal({
   const [description, setDescription] = useState(initialTool?.description ?? "");
   const [headers, setHeaders] = useState("");
   const [apiKey, setApiKey] = useState(initialTool?.apiKey ?? "");
+  const [selectedCatalog, setSelectedCatalog] = useState<string | null>(null);
 
   const isValid = name.trim() && endpoint.trim();
+
+  function applyPreset(item: typeof MCP_CATALOG[number]) {
+    const type: ToolType = ("type" in item ? item.type : "mcp") as ToolType;
+    setToolType(type);
+    setName(item.name);
+    setEndpoint(item.endpoint);
+    setDescription(item.description);
+    setApiKey("");
+    setSelectedCatalog(item.id);
+  }
 
   function handleSave() {
     if (!isValid) return;
@@ -65,7 +146,7 @@ export default function CustomToolModal({
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0d1525] p-6 shadow-2xl">
+      <div className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-[#0d1525] p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
@@ -92,6 +173,52 @@ export default function CustomToolModal({
             </svg>
           </button>
         </div>
+
+        {/* Quick connect catalog (add mode only) */}
+        {mode === "add" && (
+          <div className="mb-5">
+            <p className="text-[11px] text-white/35 uppercase tracking-wider mb-2.5">Quick Connect</p>
+            <div className="grid grid-cols-2 gap-2">
+              {MCP_CATALOG.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => applyPreset(item)}
+                  className={`text-left rounded-xl border px-3 py-2.5 transition-all ${
+                    selectedCatalog === item.id
+                      ? "border-white/20 bg-white/[0.06]"
+                      : "border-white/[0.07] bg-[#050810]/40 hover:border-white/15 hover:bg-white/[0.04]"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span style={{ color: item.color }}>{item.icon}</span>
+                      <span className="text-[12px] text-white/80 font-medium">{item.name}</span>
+                    </div>
+                    <span
+                      className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+                      style={{
+                        color: item.color,
+                        backgroundColor: `${item.color}18`,
+                        border: `1px solid ${item.color}30`,
+                      }}
+                    >
+                      {item.badge}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-white/30 leading-relaxed line-clamp-2">{item.description}</p>
+                </button>
+              ))}
+            </div>
+            <div className="relative mt-4 mb-1">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/[0.06]" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-[#0d1525] px-3 text-[10px] text-white/20 uppercase tracking-wider">or configure manually</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tool type toggle */}
         <div className="flex rounded-xl border border-white/10 overflow-hidden mb-5">
