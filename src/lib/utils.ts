@@ -33,9 +33,35 @@ export function debounce<T extends (...args: any[]) => any>(
 
 export function parseContractError(error: any): string {
   if (!error) return "Unknown error";
+
+  // User cancelled / rejected in wallet
+  if (
+    error?.code === 4001 ||
+    error?.code === "ACTION_REJECTED" ||
+    error?.code === "REJECTED" ||
+    error?.message?.includes("rejected") ||
+    error?.message?.includes("denied") ||
+    error?.message?.includes("cancelled") ||
+    error?.shortMessage?.includes("rejected") ||
+    error?.shortMessage?.includes("denied") ||
+    error?.shortMessage?.includes("cancelled") ||
+    (typeof error === "string" && error.toLowerCase().includes("reject"))
+  ) {
+    return "Transaction was cancelled. Please try again.";
+  }
+
+  // Contract revert errors
+  if (error?.reason) return error.reason;
+  if (error?.message) {
+    // Strip leading "execution reverted: " prefix if present
+    const msg = error.message;
+    if (msg.includes("execution reverted:")) {
+      return msg.replace(/^execution reverted:\s*/i, "").trim();
+    }
+    return msg;
+  }
   if (typeof error === "string") return error;
-  if (error.message) return error.message;
-  if (error.reason) return error.reason;
+
   return "Transaction failed";
 }
 
