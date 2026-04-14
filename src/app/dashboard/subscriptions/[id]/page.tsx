@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { parseEther } from "viem";
-import { useWaitForTransactionReceipt } from "wagmi";
+import { useWaitForTransactionReceipt, useReadContract } from "wagmi";
 import {
   useSubscription,
   useTopUp,
@@ -14,6 +14,7 @@ import {
   useSetWebhookUrl,
   useFinalizeExpired,
 } from "@/hooks/useSubscriptionEscrow";
+import { CONTRACT_CONFIG } from "@/lib/contracts";
 import { SubscriptionStatusBadge } from "@/components/subscriptions/SubscriptionCard";
 import GracePeriodBanner from "@/components/subscriptions/GracePeriodBanner";
 import DrainHistory from "@/components/subscriptions/DrainHistory";
@@ -85,6 +86,30 @@ export default function SubscriptionDetailPage() {
       refetch();
     }
   }, [topUpConfirmed, cancelConfirmed, approveConfirmed, webhookConfirmed, finalizeConfirmed, refetch]);
+
+  // Fetch agent profile for capabilities display
+  const subAgentId = (sub as any)?.agentId;
+  const { data: agentProfile } = useReadContract({
+    address: CONTRACT_CONFIG.AgentRegistry.address,
+    abi: CONTRACT_CONFIG.AgentRegistry.abi,
+    functionName: "getAgentProfile",
+    args: [subAgentId ? BigInt(subAgentId.toString()) : 0n],
+    query: { enabled: subAgentId && Number(subAgentId) > 0 },
+  });
+
+  const agentCapabilities = useMemo(() => {
+    if (!agentProfile) return [];
+    try {
+      const cid = (agentProfile as any).capabilityCID;
+      if (!cid) return [];
+      let base64 = cid;
+      if (cid.includes(":")) base64 = cid.split(":")[1];
+      const decoded = JSON.parse(atob(base64));
+      return decoded.skills || [];
+    } catch {
+      return [];
+    }
+  }, [agentProfile]);
 
   // Handlers
   const handleTopUp = (amount: bigint) => {
@@ -208,6 +233,18 @@ export default function SubscriptionDetailPage() {
             <p className="text-white/30 text-[12px] mt-1">
               Agent #{agentId.toString()} · {intervalModeLabel(intervalMode)}
             </p>
+            {agentCapabilities.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {agentCapabilities.map((cap: string) => (
+                  <span
+                    key={cap}
+                    className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#38bdf8]/10 border border-[#38bdf8]/15 text-[#38bdf8]/70 text-[11px]"
+                  >
+                    {cap.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

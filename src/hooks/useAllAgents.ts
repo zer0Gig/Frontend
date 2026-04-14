@@ -43,16 +43,34 @@ interface ApiResponse {
   total: number;
 }
 
+function decodeSkillsFromCID(capabilityCID: string): string[] {
+  try {
+    if (!capabilityCID) return [];
+    let base64 = capabilityCID;
+    if (capabilityCID.includes(":")) {
+      base64 = capabilityCID.split(":")[1];
+    }
+    const decoded = JSON.parse(atob(base64));
+    return decoded.skills || [];
+  } catch {
+    return [];
+  }
+}
+
 function mapOnChainToAgentListing(agent: OnChainAgent): AgentListing {
   const defaultRateBig = BigInt(agent.defaultRate);
   const ogRate = Number(defaultRateBig) / 1e18;
+  const skillIds = decodeSkillsFromCID(agent.capabilityCID);
+  const skillLabels = skillIds.map((s: string) =>
+    s.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
+  ).filter(Boolean);
 
   return {
     agentId: agent.agentId,
     capabilityCID: agent.capabilityCID,
     name: `Agent #${agent.agentId}`,
-    skills: [],
-    skillIds: [],
+    skills: skillLabels,
+    skillIds,
     rate: agent.defaultRate,
     rateDisplay: ogRate.toFixed(3),
     scoreDisplay: (agent.overallScore / 100).toFixed(1),
