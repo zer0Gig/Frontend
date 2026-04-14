@@ -352,27 +352,32 @@ export default function CreateSubscriptionPage() {
           </div>
 
           <div className="rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/80 backdrop-blur-sm p-5">
-            <div className="flex items-center gap-4">
+            {/* Header row: toggle + label */}
+            <div className="flex items-center gap-4 mb-3">
               <button
                 onClick={() => setX402Enabled(!x402Enabled)}
-                className={`relative w-12 h-6 rounded-full flex-shrink-0 transition-colors ${x402Enabled ? "bg-[#38bdf8]" : "bg-white/10"}`}
+                className={`relative w-14 h-7 rounded-full flex-shrink-0 transition-colors duration-200 ${x402Enabled ? "bg-[#38bdf8]" : "bg-white/10"}`}
               >
-                <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${x402Enabled ? "translate-x-7" : "translate-x-1"}`} />
+                <span
+                  className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-lg transition-transform duration-200 ${x402Enabled ? "translate-x-7" : "translate-x-0.5"}`}
+                />
               </button>
-              <div className="flex-1">
-                <p className="text-white text-[14px] font-medium">Enable x402 Protocol</p>
-                <p className="text-white/30 text-[12px]">Allow agent to make paid API calls charged to this subscription</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-[14px] font-semibold leading-snug">Enable x402 Protocol</p>
+                <p className="text-white/40 text-[11px] leading-relaxed mt-0.5">
+                  Agent can make paid API calls charged to this subscription
+                </p>
               </div>
               {x402Enabled && (
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 flex-shrink-0">
                   {[{ value: 0, label: "Agent-Side" }, { value: 1, label: "On-Chain" }].map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => setX402Mode(opt.value as 0 | 1)}
-                      className={`px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all border ${
+                      className={`px-4 py-1.5 rounded-lg text-[12px] font-medium transition-all border ${
                         x402Mode === opt.value
                           ? "border-[#38bdf8]/40 bg-[#38bdf8]/10 text-[#38bdf8]"
-                          : "border-white/[0.08] text-white/40"
+                          : "border-white/[0.08] text-white/40 hover:border-white/[0.15]"
                       }`}
                     >
                       {opt.label}
@@ -381,6 +386,34 @@ export default function CreateSubscriptionPage() {
                 </div>
               )}
             </div>
+
+            {/* Explanation row — only shown when x402 is on */}
+            {x402Enabled && (
+              <div className="rounded-xl bg-[#050810]/60 border border-white/[0.06] px-4 py-3 space-y-2">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-md bg-[#38bdf8]/10 border border-[#38bdf8]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[10px] text-[#38bdf8] font-bold">A</span>
+                  </div>
+                  <div>
+                    <p className="text-[12px] text-white/70 font-medium">Agent-Side</p>
+                    <p className="text-[11px] text-white/35 leading-relaxed mt-0.5">
+                      Agent self-reports API usage. Simpler, faster — agent trusts its own logs. Choose this for internal tools and low-stakes API calls.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-md bg-[#a855f7]/10 border border-[#a855f7]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-[10px] text-[#a855f7] font-bold">🔗</span>
+                  </div>
+                  <div>
+                    <p className="text-[12px] text-white/70 font-medium">On-Chain</p>
+                    <p className="text-[11px] text-white/35 leading-relaxed mt-0.5">
+                      API calls verified on-chain via 0G Alignment Nodes. Cryptographically provable, censorship-resistant. Choose for financial or mission-critical tools.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {selectedAgent && (
