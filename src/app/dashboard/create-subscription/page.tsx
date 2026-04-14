@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWalletClient, useWaitForTransactionReceipt } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { parseEther } from "viem";
-import { useAllAgents } from "@/hooks/useAllAgents";
+import { useAllAgents, skillMatchesFilter } from "@/hooks/useAllAgents";
 import { useCreateSubscription } from "@/hooks/useSubscriptionEscrow";
 
 const INTERVAL_PRESETS = [
@@ -59,7 +59,7 @@ function AgentCard({
   isSelected,
   onClick,
 }: {
-  agent: { agentId: number; name: string; skills: string[]; rateDisplay: string; scoreDisplay: string; isActive: boolean };
+  agent: { agentId: number; name: string; skills: string[]; rateDisplay: string; scoreDisplay: string; isActive: boolean; skillIds: string[] };
   isSelected: boolean;
   onClick: () => void;
 }) {
@@ -140,7 +140,7 @@ export default function CreateSubscriptionPage() {
     if (selectedFilters.length === 0) return active;
     return active.filter((agent) =>
       selectedFilters.every((filter) =>
-        agent.skillIds.some((sid) => sid.toLowerCase().includes(filter.toLowerCase()))
+        agent.skillIds.some((sid) => skillMatchesFilter(sid, filter))
       )
     );
   }, [agents, selectedFilters]);
@@ -206,7 +206,6 @@ export default function CreateSubscriptionPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="mb-8">
         <Link href="/dashboard" className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 text-[13px] mb-4 transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
@@ -233,7 +232,6 @@ export default function CreateSubscriptionPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT — Form (7/12) */}
         <div className="lg:col-span-7 space-y-5">
-          {/* Task Description */}
           <div className="rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/80 backdrop-blur-sm p-6">
             <label className="block text-[12px] text-white/40 uppercase tracking-wider mb-3">Task Description</label>
             <textarea
@@ -245,7 +243,6 @@ export default function CreateSubscriptionPage() {
             />
           </div>
 
-          {/* Interval + Rates row */}
           <div className="rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/80 backdrop-blur-sm p-6">
             <label className="block text-[12px] text-white/40 uppercase tracking-wider mb-3">Check-in Interval</label>
             <div className="flex flex-wrap gap-2 mb-4">
@@ -279,7 +276,6 @@ export default function CreateSubscriptionPage() {
             )}
           </div>
 
-          {/* Rates row */}
           <div className="grid grid-cols-3 gap-4">
             {[
               { label: "Check-in Rate (OG)", value: checkInRateOG, onChange: setCheckInRateOG, placeholder: "0.01" },
@@ -300,7 +296,6 @@ export default function CreateSubscriptionPage() {
             ))}
           </div>
 
-          {/* Grace Period + Webhook row */}
           <div className="rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/80 backdrop-blur-sm p-6">
             <div className="grid grid-cols-2 gap-6">
               <div>
@@ -334,7 +329,6 @@ export default function CreateSubscriptionPage() {
             </div>
           </div>
 
-          {/* x402 Toggle */}
           <div className="rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/80 backdrop-blur-sm p-5">
             <div className="flex items-center gap-4">
               <button
@@ -367,7 +361,6 @@ export default function CreateSubscriptionPage() {
             </div>
           </div>
 
-          {/* Summary */}
           {selectedAgent && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -392,7 +385,6 @@ export default function CreateSubscriptionPage() {
             </motion.div>
           )}
 
-          {/* Error / Success */}
           <AnimatePresence>
             {error && (
               <motion.div
@@ -454,7 +446,7 @@ export default function CreateSubscriptionPage() {
               <div className="flex flex-wrap gap-2">
                 {CAPABILITY_FILTERS.map((filter) => {
                   const isActive = selectedFilters.includes(filter.id);
-                  const count = agents.filter((a) => a.isActive && a.skillIds.some((s) => s.toLowerCase().includes(filter.id.toLowerCase()))).length;
+                  const count = agents.filter((a) => a.isActive && a.skillIds.some((sid) => skillMatchesFilter(sid, filter.id))).length;
                   return (
                     <button
                       key={filter.id}
@@ -521,10 +513,9 @@ export default function CreateSubscriptionPage() {
               )}
             </div>
 
-            {/* Selected indicator */}
-            {selectedAgentId && (
+            {selectedAgentId && selectedAgent && (
               <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                <span className="text-[12px] text-white/40">Agent #{selectedAgentId}</span>
+                <span className="text-[12px] text-white/40">{selectedAgent.name}</span>
                 <button
                   onClick={() => setSelectedAgentId("")}
                   className="text-[11px] text-white/30 hover:text-white/60 transition-colors"
