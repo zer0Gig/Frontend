@@ -8,6 +8,7 @@ import { useWalletClient } from "wagmi";
 import { parseEther } from "viem";
 import { useAllAgents } from "@/hooks/useAllAgents";
 import { useCreateSubscription } from "@/hooks/useSubscriptionEscrow";
+import FuturisticSelect from "@/components/ui/FuturisticSelect";
 
 const INTERVAL_PRESETS = [
   { label: "5 min", seconds: 300 },
@@ -42,8 +43,10 @@ export default function CreateSubscriptionPage() {
   const walletAddress = walletClient?.account.address;
 
   const { createSubscription } = useCreateSubscription();
+  const { agents, isLoading: agentsLoading } = useAllAgents(true);
 
   const [taskDescription, setTaskDescription] = useState("");
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
   const [checkInRateOG, setCheckInRateOG] = useState("");
   const [alertRateOG, setAlertRateOG] = useState("");
   const [budgetOG, setBudgetOG] = useState("");
@@ -61,12 +64,12 @@ export default function CreateSubscriptionPage() {
   const effectiveInterval = intervalPreset === 0 ? parseInt(customInterval) || 0 : intervalPreset;
 
   const handleCreate = async () => {
-    if (!taskDescription || !checkInRateOG || !budgetOG) return;
+    if (!taskDescription || !checkInRateOG || !budgetOG || !selectedAgentId) return;
     setIsPending(true);
     setError(null);
 
     try {
-      await createSubscription(0n,
+      await createSubscription(BigInt(selectedAgentId),
         taskDescription,
         BigInt(effectiveInterval),
         parseEther(checkInRateOG),
@@ -87,7 +90,7 @@ export default function CreateSubscriptionPage() {
     }
   };
 
-  const canSubmit = taskDescription && checkInRateOG && budgetOG && !isPending;
+  const canSubmit = taskDescription && checkInRateOG && budgetOG && selectedAgentId && !isPending;
 
   return (
     <div className="max-w-2xl">
@@ -130,6 +133,43 @@ export default function CreateSubscriptionPage() {
             rows={3}
             className="w-full bg-[#050810]/80 border border-white/10 rounded-xl px-4 py-3 text-white text-[14px] placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
           />
+        </div>
+
+        <div>
+          <label className="block text-[13px] text-white/50 mb-2">Select Agent</label>
+          {agentsLoading ? (
+            <div className="bg-[#050810]/80 border border-white/10 rounded-xl px-4 py-3 text-white/40 text-[14px]">
+              Loading agents...
+            </div>
+          ) : agents.length === 0 ? (
+            <div className="bg-[#050810]/80 border border-white/10 rounded-xl px-4 py-3 text-white/40 text-[14px]">
+              No active agents available
+            </div>
+          ) : (
+            <FuturisticSelect
+              options={[
+                { value: "", label: "Choose an agent..." },
+                ...agents
+                  .filter((a) => a.isActive)
+                  .map((a) => ({
+                    value: a.agentId.toString(),
+                    label: `${a.name} — ${a.rateDisplay} OG/run`,
+                  })),
+              ]}
+              value={selectedAgentId}
+              onChange={setSelectedAgentId}
+              placeholder="Choose an agent..."
+              width="w-full"
+              icon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2" />
+                </svg>
+              }
+            />
+          )}
+          {!selectedAgentId && (
+            <p className="text-[12px] text-white/30 mt-2">Select an agent to hire for this subscription</p>
+          )}
         </div>
 
         <div>
