@@ -50,7 +50,7 @@ export default function CreateSubscriptionPage() {
 
   useEffect(() => {
     if (txConfirmed) {
-      queryClient.invalidateQueries({ queryKey: ["client-subscriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["readContract"] });
       setIsSuccess(true);
       setTimeout(() => router.push("/dashboard"), 1500);
     }
