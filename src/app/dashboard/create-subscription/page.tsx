@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,13 +27,16 @@ const GRACE_PRESETS = [
 ];
 
 const CAPABILITY_FILTERS = [
-  { id: "web_search",       label: "Web Search",    icon: "🔍" },
-  { id: "code_execution",  label: "Code Exec",    icon: "⚡" },
-  { id: "data_analysis",   label: "Data Analysis", icon: "📊" },
-  { id: "content_writing", label: "Writing",       icon: "✍️" },
-  { id: "image_generation",label: "Image Gen",     icon: "🎨" },
-  { id: "solidity_dev",    label: "Solidity",      icon: "📜" },
-  { id: "frontend_dev",    label: "Frontend",     icon: "🖥️" },
+  { id: "web_search",        label: "Web Search",   icon: "🔍" },
+  { id: "code_execution",   label: "Code Exec",   icon: "⚡" },
+  { id: "data_analysis",    label: "Data Analysis",icon: "📊" },
+  { id: "content_writing",   label: "Writing",      icon: "✍️" },
+  { id: "image_generation",  label: "Image Gen",   icon: "🎨" },
+  { id: "solidity_dev",      label: "Solidity",     icon: "📜" },
+  { id: "frontend_dev",     label: "Frontend",    icon: "🖥️" },
+  { id: "mcp",               label: "MCP",          icon: "🔌" },
+  { id: "telegram_customer", label: "Telegram Bot", icon: "📱" },
+  { id: "trading_agent",     label: "Trading",      icon: "📈" },
 ];
 
 function labelForInterval(seconds: number): string {
@@ -46,9 +49,9 @@ function labelForInterval(seconds: number): string {
   return `${Math.floor(seconds / 86400)}d`;
 }
 
-function CapabilityBadge({ label }: { label: string }) {
+function SkillBadge({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/[0.06] text-[10px] text-white/50 border border-white/[0.08]">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-white/[0.06] text-[10px] text-white/50 border border-white/[0.08]">
       {label}
     </span>
   );
@@ -59,23 +62,29 @@ function AgentCard({
   isSelected,
   onClick,
 }: {
-  agent: { agentId: number; name: string; skills: string[]; rateDisplay: string; scoreDisplay: string; isActive: boolean; skillIds: string[] };
+  agent: {
+    agentId: number;
+    name: string;
+    skills: string[];
+    rateDisplay: string;
+    scoreDisplay: string;
+    isActive: boolean;
+    skillIds: string[];
+  };
   isSelected: boolean;
   onClick: () => void;
 }) {
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.015 }}
-      whileTap={{ scale: 0.985 }}
-      animate={isSelected ? {
-        borderColor: "rgba(56, 189, 248, 0.5)",
-        boxShadow: "0 0 20px rgba(56, 189, 248, 0.15)",
-      } : {
-        borderColor: "rgba(255,255,255,0.08)",
-        boxShadow: "0 0 0px rgba(56, 189, 248, 0)",
-      }}
-      className={`w-full text-left rounded-xl border bg-[#050810]/80 p-4 transition-all duration-200 relative overflow-hidden`}
+      whileHover={{ scale: 1.012 }}
+      whileTap={{ scale: 0.988 }}
+      animate={
+        isSelected
+          ? { borderColor: "rgba(56, 189, 248, 0.5)", boxShadow: "0 0 20px rgba(56, 189, 248, 0.15)" }
+          : { borderColor: "rgba(255,255,255,0.08)", boxShadow: "0 0 0px rgba(56, 189, 248, 0)" }
+      }
+      className="w-full text-left rounded-xl border bg-[#050810]/80 p-4 transition-all duration-200 relative overflow-hidden"
     >
       {isSelected && (
         <motion.div
@@ -85,35 +94,39 @@ function AgentCard({
           transition={{ duration: 0.2 }}
         />
       )}
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <div className={`w-2 h-2 rounded-full ${agent.isActive ? "bg-emerald-400/70" : "bg-white/20"}`} />
-            <p className="text-[14px] font-medium text-white truncate">{agent.name}</p>
-          </div>
-          <div className="flex flex-wrap gap-1 mt-2">
-            {agent.skills.slice(0, 3).map((skill) => (
-              <CapabilityBadge key={skill} label={skill} />
-            ))}
-            {agent.skills.length > 3 && (
-              <span className="text-[10px] text-white/30 self-center">+{agent.skills.length - 3}</span>
-            )}
-          </div>
+
+      {/* Top row: name + rate */}
+      <div className="flex items-start justify-between gap-4 mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${agent.isActive ? "bg-emerald-400/70" : "bg-white/20"}`} />
+          <p className="text-[14px] font-semibold text-white truncate">{agent.name}</p>
         </div>
         <div className="flex flex-col items-end flex-shrink-0">
-          <span className="text-[14px] font-semibold text-[#38bdf8]">{agent.rateDisplay}</span>
-          <span className="text-[11px] text-white/30 mt-0.5">OG/task</span>
-          <span className="text-[10px] text-white/25 mt-1">★ {agent.scoreDisplay}</span>
+          <span className="text-[15px] font-bold text-[#38bdf8]">{agent.rateDisplay} OG</span>
+          <span className="text-[10px] text-white/30">per task · ★ {agent.scoreDisplay}</span>
         </div>
       </div>
+
+      {/* Bottom row: skills */}
+      <div className="flex flex-wrap gap-1.5">
+        {agent.skills.slice(0, 5).map((skill) => (
+          <SkillBadge key={skill} label={skill} />
+        ))}
+        {agent.skills.length > 5 && (
+          <span className="text-[10px] text-white/25 self-center">+{agent.skills.length - 5}</span>
+        )}
+      </div>
+
+      {/* Selected indicator */}
       <AnimatePresence>
         {isSelected && (
           <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative flex items-center gap-1.5 mt-3 pt-3 border-t border-[#38bdf8]/20"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center gap-1.5 mt-3 pt-2.5 border-t border-[#38bdf8]/20"
           >
-            <svg className="w-3.5 h-3.5 text-[#38bdf8]" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-3.5 h-3.5 text-[#38bdf8] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
             <span className="text-[12px] text-[#38bdf8] font-medium">Selected</span>
@@ -129,11 +142,20 @@ export default function CreateSubscriptionPage() {
   const { data: walletClient } = useWalletClient();
 
   const { createSubscription, txHash } = useCreateSubscription();
-  const { agents, isLoading: agentsLoading } = useAllAgents(true);
+  const { agents, isLoading: agentsLoading, refetch: refetchAgents } = useAllAgents(true);
   const { isSuccess: txConfirmed } = useWaitForTransactionReceipt({ hash: txHash });
   const queryClient = useQueryClient();
 
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Only fetch on mount, not on every render
+  useEffect(() => {
+    if (!hasInitialized) {
+      refetchAgents();
+      setHasInitialized(true);
+    }
+  }, [hasInitialized, refetchAgents]);
 
   const filteredAgents = useMemo(() => {
     const active = agents.filter((a) => a.isActive);
@@ -373,13 +395,13 @@ export default function CreateSubscriptionPage() {
                   <p className="text-white font-medium text-[15px]">{selectedAgent.name}</p>
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {selectedAgent.skills.slice(0, 4).map((s) => (
-                      <CapabilityBadge key={s} label={s} />
+                      <SkillBadge key={s} label={s} />
                     ))}
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-[#38bdf8] text-[16px] font-semibold">{selectedAgent.rateDisplay} OG</p>
-                  <p className="text-white/30 text-[11px]">per task</p>
+                  <p className="text-white/30 text-[11px]">per task · ★ {selectedAgent.scoreDisplay}</p>
                 </div>
               </div>
             </motion.div>
@@ -432,12 +454,8 @@ export default function CreateSubscriptionPage() {
         <div className="lg:col-span-5">
           <div className="sticky top-6 rounded-2xl border border-white/[0.08] bg-[#0a0f1a]/80 backdrop-blur-sm p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-semibold text-white/60 uppercase tracking-wider">
-                Choose Agent
-              </h3>
-              <span className="text-[12px] text-white/30">
-                {filteredAgents.length} available
-              </span>
+              <h3 className="text-[13px] font-semibold text-white/60 uppercase tracking-wider">Choose Agent</h3>
+              <span className="text-[12px] text-white/30">{filteredAgents.length} available</span>
             </div>
 
             {/* Capability Filters */}
@@ -446,7 +464,9 @@ export default function CreateSubscriptionPage() {
               <div className="flex flex-wrap gap-2">
                 {CAPABILITY_FILTERS.map((filter) => {
                   const isActive = selectedFilters.includes(filter.id);
-                  const count = agents.filter((a) => a.isActive && a.skillIds.some((sid) => skillMatchesFilter(sid, filter.id))).length;
+                  const count = agents.filter(
+                    (a) => a.isActive && a.skillIds.some((sid) => skillMatchesFilter(sid, filter.id))
+                  ).length;
                   return (
                     <button
                       key={filter.id}
@@ -475,20 +495,18 @@ export default function CreateSubscriptionPage() {
             </div>
 
             {/* Agent List */}
-            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
+            <div className="space-y-3 max-h-[520px] overflow-y-auto pr-0.5 custom-scrollbar">
               {agentsLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-24 bg-white/[0.03] rounded-xl animate-pulse" />
+                    <div key={i} className="h-20 bg-white/[0.03] rounded-xl animate-pulse" />
                   ))}
                 </div>
               ) : filteredAgents.length === 0 ? (
                 <div className="text-center py-10">
                   <div className="text-4xl mb-3">🔍</div>
                   <p className="text-white/30 text-[13px]">
-                    {selectedFilters.length > 0
-                      ? "No agents match selected capabilities"
-                      : "No active agents available"}
+                    {selectedFilters.length > 0 ? "No agents match selected capabilities" : "No active agents available"}
                   </p>
                 </div>
               ) : (

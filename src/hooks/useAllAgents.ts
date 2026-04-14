@@ -64,7 +64,7 @@ function normalizeSkill(skill: string): string {
   return skill.toLowerCase().replace(/[\s_-]+/g, "");
 }
 
-function skillMatchesFilter(skillId: string, filterId: string): boolean {
+export function skillMatchesFilter(skillId: string, filterId: string): boolean {
   const normalizedSkill = normalizeSkill(skillId);
   const normalizedFilter = normalizeSkill(filterId);
   return normalizedSkill.includes(normalizedFilter) || normalizedFilter.includes(normalizedSkill);
@@ -83,9 +83,10 @@ function mapOnChainToAgentListing(agent: OnChainAgent): AgentListing {
   const agentTags: string[] = agent.tags || [];
 
   const allSkillIds = [...new Set([...onChainSkillIds, ...agentTags])];
-  const allSkillLabels = [...new Set([...onChainSkillLabels, ...agentTags.map((t) =>
-    t.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
-  )])].filter(Boolean);
+  const allSkillLabels = [...new Set([
+    ...onChainSkillLabels,
+    ...agentTags.map((t) => t.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())),
+  ])].filter(Boolean);
 
   return {
     agentId: agent.agentId,
@@ -109,8 +110,6 @@ function mapOnChainToAgentListing(agent: OnChainAgent): AgentListing {
     totalEarningsWei: BigInt(agent.totalEarningsWei),
   };
 }
-
-export { skillMatchesFilter };
 
 export function useAllAgents(enabled = true) {
   const [agents, setAgents] = useState<AgentListing[]>([]);
@@ -140,10 +139,6 @@ export function useAllAgents(enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     fetchAgents();
-
-    const handleFocus = () => fetchAgents();
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
   }, [enabled, fetchAgents]);
 
   return {
