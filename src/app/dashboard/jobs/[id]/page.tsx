@@ -31,6 +31,7 @@ import SystemMessageLog from "@/components/jobs/SystemMessageLog";
 import MilestoneBuilder from "@/components/jobs/MilestoneBuilder";
 import FuturisticSelect, { SelectOption } from "@/components/ui/FuturisticSelect";
 import { AgentStatsCard } from "@/components/subscriptions/AgentStatsCard";
+import AgentActivityByWallet from "@/components/jobs/AgentActivityByWallet";
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 // Job status enum: 0=OPEN, 1=PENDING_MILESTONES, 2=IN_PROGRESS, 3=COMPLETED, 4=CANCELLED, 5=PARTIALLY_DONE
@@ -855,11 +856,9 @@ function JobDetailInner({ jobId }: { jobId: number }) {
       {/* ── IN_PROGRESS / COMPLETED / PARTIALLY_DONE: milestone timeline ── */}
       {job.status >= JOB_STATUS.IN_PROGRESS && job.status !== JOB_STATUS.CANCELLED && (
         <>
-          {/* Combined agent activity + chat stream */}
-          {job.agentId && job.agentId > 0n && (
-            <>
-              {/* Combined agent activity + chat stream */}
-            </>
+          {/* Agent Activity (live from Supabase) */}
+          {job.agentWallet && (
+            <AgentActivityByWallet agentWallet={job.agentWallet} maxEntries={15} />
           )}
 
           {/* Milestone Timeline */}
